@@ -110,7 +110,7 @@ describe('Home Controller', () => {
 
       fetchSpy.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockReview
+        json: () => Promise.resolve(mockReview)
       })
 
       const { statusCode, headers } = await server.inject({
