@@ -50,3 +50,45 @@ export async function getCodeReviews(request, h) {
     })
   }
 }
+
+/**
+ * Handler for the code review detail page
+ */
+export async function getCodeReviewById(request, h) {
+  try {
+    const { id } = request.params
+    const response = await fetch(
+      `${config.get('apiBaseUrl')}/api/v1/code-reviews/${id}`
+    )
+
+    if (response.status === 404) {
+      return h.view('error/index', {
+        statusCode: 404,
+        title: 'Not Found',
+        message: 'Not Found'
+      })
+    }
+
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status}`)
+    }
+
+    const review = await response.json()
+
+    return h.view('code-reviews/detail', {
+      pageTitle: 'Code Review Details',
+      review: {
+        ...review,
+        created_at: formatDate(review.created_at),
+        updated_at: formatDate(review.updated_at)
+      }
+    })
+  } catch (err) {
+    request.logger.error('Error fetching code review:', err)
+    return h.view('error/index', {
+      statusCode: 500,
+      title: 'Error',
+      message: 'Error'
+    })
+  }
+}

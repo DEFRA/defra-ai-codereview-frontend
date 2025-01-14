@@ -1,0 +1,70 @@
+{% extends "layouts/page.njk" %}
+
+{% from "govuk/components/tabs/macro.njk" import govukTabs %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">Code Review Details</h1>
+
+  {% if review %}
+    {{ govukSummaryList({
+      rows: [
+        {
+          key: {
+            text: "Code Repository"
+          },
+          value: {
+            text: review.repository_url
+          }
+        },
+        {
+          key: {
+            text: "Created At"
+          },
+          value: {
+            text: review.created_at
+          }
+        },
+        {
+          key: {
+            text: "Updated At"
+          },
+          value: {
+            text: review.updated_at
+          }
+        },
+        {
+          key: {
+            text: "Status"
+          },
+          value: {
+            html: govukTag({
+              text: review.status | replace("_", " ") | title,
+              classes: "govuk-tag--" + review.status | lower
+            })
+          }
+        }
+      ]
+    }) }}
+
+    {{ govukTabs({
+      title: "Code Review Reports",
+      items: [
+        {
+          label: "Report Overview",
+          id: "overview",
+          panel: {
+            html: "<p class='govuk-body'>Report details will be available here once the review is complete.</p>"
+          }
+        }
+      ]
+    }) }}
+  {% else %}
+    <p class="govuk-body">Code review not found.</p>
+  {% endif %}
+
+  <p class="govuk-body">
+    <a href="/code-reviews" class="govuk-link">Back to code reviews</a>
+  </p>
+{% endblock %} 

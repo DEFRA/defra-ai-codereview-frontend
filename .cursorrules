@@ -20,6 +20,12 @@ A Web Application for submitting code repositories for review. Also provides a i
 - PostCSS (CSS processing)
 - Stylelint (CSS linting)
 
+## Development Workflow
+- Use npm scripts for common tasks
+- always run `npm run format` after making any file changes
+- always run `npm run lint:fix` after making any file changes
+- when you are done modifying all the files, then run `npm run test` to ensure that your changes have not broken any existing functionality
+
 ## Project Structure
 ```
 /
@@ -191,10 +197,6 @@ Key directories and their purposes:
 - Implement proper session handling
 - Set secure cookie flags in production
 - Validate all inputs to prevent injection attacks.
-
-## Development Workflow
-- Use npm scripts for common tasks
-- After writing all code, run prettier to format the code using `npm run format`
 
 ## Nunjucks & GOV.UK Frontend Rules
 
