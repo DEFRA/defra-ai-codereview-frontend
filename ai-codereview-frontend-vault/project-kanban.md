@@ -7,6 +7,7 @@ kanban-plugin: board
 ## To Do
 
 - [ ] update central cursor rules when done
+- [ ] how are environment variables done in js projects?
 
 
 ## Doing

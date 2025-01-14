@@ -7,6 +7,11 @@ export function buildNavigation(request) {
       text: 'Home',
       url: '/',
       isActive: request?.path === '/'
+    },
+    {
+      text: 'Code Reviews',
+      url: '/code-reviews',
+      isActive: request?.path?.startsWith('/code-reviews')
     }
   ]
 }

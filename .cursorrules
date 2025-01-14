@@ -115,6 +115,11 @@ Key directories and their purposes:
 - TypeScript is used for type checking only (no .ts files)
 - Include comprehensive type definitions for function parameters and returns
 
+### Module System
+- Use ES Modules (import/export) instead of CommonJS (require/module.exports)
+- Always use named exports instead of default exports
+- Add .js extension to all import statements
+
 ### File Structure
 - Group related functionality into directories (e.g., helpers, components)
 - Use index.js files to aggregate and re-export from directories
@@ -189,9 +194,7 @@ Key directories and their purposes:
 
 ## Development Workflow
 - Use npm scripts for common tasks
-- Run linting and tests before commits (via husky)
-- Format code using prettier
-- Follow the established project structure for new features
+- After writing all code, run prettier to format the code using `npm run format`
 
 ## Nunjucks & GOV.UK Frontend Rules
 

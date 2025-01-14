@@ -1,0 +1,38 @@
+{% extends "layouts/page.njk" %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">Code Reviews</h1>
+
+  {% if codeReviews and codeReviews.length > 0 %}
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header">Code Repository</th>
+          <th scope="col" class="govuk-table__header">Created At</th>
+          <th scope="col" class="govuk-table__header">Updated At</th>
+          <th scope="col" class="govuk-table__header">Status</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        {% for review in codeReviews %}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell">
+              <a href="{{ review.detailUrl }}" class="govuk-link">
+                {{ review.repository_url }}
+              </a>
+            </td>
+            <td class="govuk-table__cell">{{ review.created_at }}</td>
+            <td class="govuk-table__cell">{{ review.updated_at }}</td>
+            <td class="govuk-table__cell">
+              <strong class="govuk-tag govuk-tag--{{ review.status | lower }}">
+                {{ review.status | replace("_", " ") | title }}
+              </strong>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="govuk-body">No code reviews found.</p>
+  {% endif %}
+{% endblock %} 
