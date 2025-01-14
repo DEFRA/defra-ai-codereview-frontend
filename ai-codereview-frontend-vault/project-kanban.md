@@ -8,6 +8,7 @@ kanban-plugin: board
 
 - [ ] update central cursor rules when done
 - [ ] how are environment variables done in js projects?
+- [ ] clean up layout and change the title. maybe copy CDP style?
 
 
 ## Doing
