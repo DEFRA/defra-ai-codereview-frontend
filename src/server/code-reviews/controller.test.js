@@ -59,8 +59,8 @@ describe('Code Reviews Controller', () => {
             _id: mockReviews[0]._id,
             repository_url: mockReviews[0].repository_url,
             status: mockReviews[0].status,
-            created_at: expect.any(String),
-            updated_at: expect.any(String),
+            created_at: '14 January 2024 at 12:00pm',
+            updated_at: '14 January 2024 at 1:00pm',
             detailUrl: `/code-reviews/${mockReviews[0]._id}`
           })
         ])
@@ -110,8 +110,8 @@ describe('Code Reviews Controller', () => {
           _id: mockReview._id,
           repository_url: mockReview.repository_url,
           status: mockReview.status,
-          created_at: expect.any(String),
-          updated_at: expect.any(String)
+          created_at: '14 January 2024 at 12:00pm',
+          updated_at: '14 January 2024 at 1:00pm'
         })
       })
     })

@@ -10,13 +10,38 @@ import { config } from '~/src/config/config.js'
  */
 
 /**
- * Formats a date string into yyyy-mm-dd HH:ii:ss format
+ * Formats a date string into GOV.UK standard format (e.g. "14 January 2024 at 2:00pm")
  * @param {string} dateString - ISO date string
  * @returns {string} Formatted date string
  */
 function formatDate(dateString) {
   const date = new Date(dateString)
-  return date.toISOString().replace('T', ' ').substring(0, 19)
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ]
+
+  const day = date.getDate()
+  const month = months[date.getMonth()]
+  const year = date.getFullYear()
+
+  let hours = date.getHours()
+  const minutes = date.getMinutes().toString().padStart(2, '0')
+  const ampm = hours >= 12 ? 'pm' : 'am'
+  hours = hours % 12
+  hours = hours || 12 // Convert 0 to 12
+
+  return `${day} ${month} ${year} at ${hours}:${minutes}${ampm}`
 }
 
 /**
