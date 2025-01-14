@@ -48,9 +48,11 @@ The scope of this PRD includes the following pages and features:
 ### 4.1 Existing Application
 - The application currently has a basic skeleton with:
   - **Home Page**: Minimal content (to be updated).
-- The backend is powered by Hapi.js with a set of RESTful APIs for code reviews.
+- The backend is powered by Hapi.js 
+- Calls are made to a set of RESTful APIs for code reviews that exist in another service - the code review api service. 
 
 ### 4.2 Existing APIs
+These API's exist in the external code review api service.
 
 | HTTP Method | Endpoint                           | Description                                                  |
 |------------|-------------------------------------|--------------------------------------------------------------|
@@ -122,7 +124,7 @@ Used for validation responses, following standard error object structure:
 
 **Acceptance Criteria**  
 - A user can enter a valid URL and submit it.
-- The system successfully creates a new code review record and redirects to the detail page.
+- The system successfully creates a new code review record by calling the code review api service and redirects to the detail page.
 - Invalid URLs or other validation errors are shown according to GOV.UK patterns.
 
 ### 5.2 Code Review Record Detail Page
@@ -133,9 +135,9 @@ Used for validation responses, following standard error object structure:
   - If the record does not exist, display an appropriate "Record not found" message or use the recommended GOV.UK error pattern.
 - **Displayed Information**:
   1. **Code Repository**: `repository_url`
-  2. **CreatedAt**: In `yyyy-mm-dd HH:ii:ss` format.
-  3. **UpdatedAt**: In `yyyy-mm-dd HH:ii:ss` format.
-  4. **Status**: The status of the code review (`started`, `in_progress`, `completed`, `failed`).
+  2. **Created At**: In GDS-compliant date and time format.
+  3. **Updated At**: In GDS-compliant date and time format.
+  4. **Status**: The status of the code review (`started`, `in_progress`, `completed`, `failed`). In GDS-compliant format.
   5. **Tab Component**: Placeholder for future code review report details.
 
 - **Design**:
@@ -143,6 +145,7 @@ Used for validation responses, following standard error object structure:
   - The tab component can be a GOV.UK component or a custom progressive enhancement approach using vanilla JavaScript.
 
 **Acceptance Criteria**  
+- The page gets the code review record from the code review api service.
 - The page correctly displays all attributes of the code review record.
 - If a record is not found, a GOV.UK style error message is shown.
 - The tab component placeholder is present (no actual report content yet).
@@ -154,9 +157,9 @@ Used for validation responses, following standard error object structure:
   - On page load, **GET** `/api/v1/code-reviews` to retrieve a list of all code review records.
   - Render the results in a table:
     - **Code Repository** (links to `/code-reviews/{_id}`).
-    - **CreatedAt** (formatted `yyyy-mm-dd HH:ii:ss`).
-    - **UpdatedAt** (formatted `yyyy-mm-dd HH:ii:ss`).
-    - **Status**.
+    - **Created At**. In GDS-compliant date and time format.
+    - **Updated At**. In GDS-compliant date and time format.
+    - **Status**. In GDS-compliant format.
 - **Navigation**:
   - Add a new top-level navigation item, "Code Reviews", pointing to `/code-reviews`.
 
@@ -165,6 +168,7 @@ Used for validation responses, following standard error object structure:
   - Ensure the link for each repository leads to the detail page for that review.
 
 **Acceptance Criteria**  
+- The page gets the all code review records from the code review api service.
 - The table displays the required columns for all code review records.
 - Each record's repository links to its detail page.
 - A "Code Reviews" link exists in the main navigation to access this list page.
@@ -192,11 +196,12 @@ Used for validation responses, following standard error object structure:
    - On submission from Home Page: `POST /api/v1/code-reviews`
    - Retrieve single review: `GET /api/v1/code-reviews/{id}`
    - Retrieve list of reviews: `GET /api/v1/code-reviews`
-5. **Data Formatting**:
-   - Timestamps displayed as `yyyy-mm-dd HH:ii:ss` (ISO-based with local time zone or UTC).
-6. **Validation**:
+5. **Validation**:
    - Ensure `repository_url` is a valid URL before sending to the backend.
    - Handle errors with GOV.UK-compliant error messaging.
+6. Configuration
+- Use convict for configuration management. 
+- Extend the existing configuration files in `src/config` rather than creating new ones
 
 ## 8. Non-functional Requirements
 
@@ -210,15 +215,18 @@ Used for validation responses, following standard error object structure:
 
 1. **Home Page**  
    - User can submit a valid repository URL.  
+   - Creates a new code review record by calling the code review api service.
    - On success, user is redirected to the detail page of the newly created record.  
    - Invalid URL or server errors are displayed using GOV.UK-style error messages.
 
 2. **Code Review Record Detail Page**  
+   - Gets the code review record from the code review api service.
    - Displays all relevant information (repository, timestamps, status).  
    - Shows placeholder tab component for future enhancements.  
    - Shows appropriate error if record is not found.
 
 3. **Code Review List Page**  
+   - Gets the all existing code reviews from the code review api service.
    - Displays a table of all existing code reviews.  
    - Each table row links to the corresponding detail page.  
    - "Code Reviews" navigation item is added and functional.

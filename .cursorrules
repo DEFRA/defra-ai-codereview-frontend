@@ -1,12 +1,7 @@
-# [Project Name]
-
-Every time you choose to apply a rule(s), explicitly state the rule(s) in the output. You can abbreviate the rule description to a single word or phrase.
+# Defra AI Code Review Frontend
 
 ## Project Context
-[Brief description ]
-- [more description]
-- [more description]
-- [more description]
+A Web Application for submitting code repositories for review. Also provides a interface for reviewing the code reviews. A frontend for the defra code review API.
 
 ## Language
 - JavaScript
@@ -14,16 +9,16 @@ Every time you choose to apply a rule(s), explicitly state the rule(s) in the ou
 
 ## Tech Stack
 - Node.js
+- Hapi.js (server framework)
+- GOV.UK Frontend (UI components)     
+- Nunjucks (template engine)
 - Webpack (bundling and asset management)
 - Babel (JavaScript transpilation)
 - Jest (testing framework)
 - ESLint & Prettier (code formatting and linting)
 - SCSS (styling)
-- GOV.UK Frontend
-- Hapi.js (server framework)
 - PostCSS (CSS processing)
 - Stylelint (CSS linting)
-- Nodemon (development server)
 
 ## Project Structure
 ```
