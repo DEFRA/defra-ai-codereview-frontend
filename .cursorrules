@@ -197,3 +197,76 @@ Key directories and their purposes:
 - Run linting and tests before commits (via husky)
 - Format code using prettier
 - Follow the established project structure for new features
+
+## Nunjucks & GOV.UK Frontend Rules
+
+### Template Structure
+- Use `{% extends 'layouts/page.njk' %}` as the base template for all pages
+- Place page-specific content within the `{% block content %}` block
+- Use `govuk-` prefix for GOV.UK Frontend components
+- Use `app-` prefix for custom components
+- Keep templates DRY by using macros and includes
+
+### Component Usage
+- Import GOV.UK components globally in layout files using:
+  ```njk
+  {% from "govuk/components/[component-name]/macro.njk" import govuk[ComponentName] %}
+  ```
+- Import custom components globally in layout files using:
+  ```njk
+  {% from "[component-name]/macro.njk" import app[ComponentName] %}
+  ```
+- Follow GOV.UK Frontend component parameter structure:
+  ```njk
+  {{ govukComponent({
+    key: value,
+    classes: "additional-classes"
+  }) }}
+  ```
+
+### Custom Components
+- Create components in `src/server/common/components/[component-name]/`
+- Include three files per component:
+  1. `template.njk` - Component markup
+  2. `macro.njk` - Component macro definition
+  3. `_[component-name].scss` - Component styles
+- Use BEM naming convention with 'app-' prefix
+- Include data-testid attributes for testing
+
+### Layout & Grid
+- Use GOV.UK Frontend grid system:
+  - `govuk-grid-row` for rows
+  - `govuk-grid-column-*` for columns
+- Follow GOV.UK Frontend spacing units using `govuk-spacing()` function
+- Use GOV.UK Frontend typography classes (e.g., `govuk-body`, `govuk-heading-xl`)
+
+### Styling
+- Import GOV.UK Frontend styles using:
+  ```scss
+  @use "govuk-frontend" as *;
+  ```
+- Use GOV.UK Frontend color variables and functions
+- Follow GOV.UK Frontend breakpoints using `govuk-media-query()`
+- Namespace custom styles with 'app-' prefix
+
+### Testing
+- Use the provided `renderComponent()` helper for component testing
+- Include data-testid attributes for component testing
+- Test component variations and edge cases
+
+### Configuration
+- Configure Nunjucks environment with:
+  - `trimBlocks: true`
+  - `lstripBlocks: true`
+  - `autoescape: true`
+- Set up proper paths for GOV.UK Frontend templates
+- Use filters for data formatting (e.g., dates, currency)
+- Add custom globals when needed
+
+### Best Practices
+- Keep templates focused on presentation logic
+- Use macros for reusable template patterns
+- Follow progressive enhancement principles
+- Maintain accessibility standards
+- Use proper HTML5 semantic elements
+- Include ARIA attributes where necessary
