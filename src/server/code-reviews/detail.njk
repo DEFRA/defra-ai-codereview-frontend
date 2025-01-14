@@ -9,39 +9,52 @@
 
   {% if review %}
     {{ govukSummaryList({
+      role: "contentinfo",
+      ariaLabel: "Code review information",
       rows: [
         {
           key: {
-            text: "Code Repository"
+            text: "Code Repository",
+            classes: "govuk-!-width-one-third"
           },
           value: {
-            text: review.repository_url
+            text: review.repository_url,
+            classes: "govuk-!-width-two-thirds"
           }
         },
         {
           key: {
-            text: "Created At"
+            text: "Created At",
+            classes: "govuk-!-width-one-third"
           },
           value: {
-            text: review.created_at
+            text: review.created_at,
+            classes: "govuk-!-width-two-thirds"
           }
         },
         {
           key: {
-            text: "Updated At"
+            text: "Updated At",
+            classes: "govuk-!-width-one-third"
           },
           value: {
-            text: review.updated_at
+            text: review.updated_at,
+            classes: "govuk-!-width-two-thirds"
           }
         },
         {
           key: {
-            text: "Status"
+            text: "Status",
+            classes: "govuk-!-width-one-third"
           },
           value: {
             html: govukTag({
               text: review.status | replace("_", " ") | title,
-              classes: "govuk-tag--" + review.status | lower
+              classes: "govuk-tag--" + review.status | lower,
+              attributes: {
+                "role": "status",
+                "aria-label": "Review status: " + (review.status | replace("_", " ") | title)
+              }
             })
           }
         }
@@ -49,22 +62,24 @@
     }) }}
 
     {{ govukTabs({
+      id: "review-tabs",
       title: "Code Review Reports",
+      ariaLabel: "Code review report sections",
       items: [
         {
           label: "Report Overview",
           id: "overview",
           panel: {
-            html: "<p class='govuk-body'>Report details will be available here once the review is complete.</p>"
+            html: "<p class='govuk-body' role='status' aria-live='polite'>Report details will be available here once the review is complete.</p>"
           }
         }
       ]
     }) }}
   {% else %}
-    <p class="govuk-body">Code review not found.</p>
+    <p class="govuk-body" role="alert">Code review not found.</p>
   {% endif %}
 
   <p class="govuk-body">
-    <a href="/code-reviews" class="govuk-link">Back to code reviews</a>
+    <a href="/code-reviews" class="govuk-link" aria-label="Return to code reviews list">Back to code reviews</a>
   </p>
 {% endblock %} 
