@@ -14,12 +14,12 @@ describe('#buildNavigation', () => {
     ).toEqual([
       {
         isActive: false,
-        text: 'Home',
+        text: 'Generate code review',
         url: '/'
       },
       {
         isActive: false,
-        text: 'Code Reviews',
+        text: 'View code reviews',
         url: '/code-reviews'
       }
     ])
@@ -29,12 +29,12 @@ describe('#buildNavigation', () => {
     expect(buildNavigation(mockRequest({ path: '/' }))).toEqual([
       {
         isActive: true,
-        text: 'Home',
+        text: 'Generate code review',
         url: '/'
       },
       {
         isActive: false,
-        text: 'Code Reviews',
+        text: 'View code reviews',
         url: '/code-reviews'
       }
     ])
@@ -44,12 +44,12 @@ describe('#buildNavigation', () => {
     expect(buildNavigation(mockRequest({ path: '/code-reviews' }))).toEqual([
       {
         isActive: false,
-        text: 'Home',
+        text: 'Generate code review',
         url: '/'
       },
       {
         isActive: true,
-        text: 'Code Reviews',
+        text: 'View code reviews',
         url: '/code-reviews'
       }
     ])
@@ -61,12 +61,12 @@ describe('#buildNavigation', () => {
     ).toEqual([
       {
         isActive: false,
-        text: 'Home',
+        text: 'Generate code review',
         url: '/'
       },
       {
         isActive: true,
-        text: 'Code Reviews',
+        text: 'View code reviews',
         url: '/code-reviews'
       }
     ])

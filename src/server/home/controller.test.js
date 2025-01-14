@@ -31,7 +31,7 @@ describe('Home Controller', () => {
       })
 
       expect(statusCode).toBe(statusCodes.ok)
-      expect(result).toEqual(expect.stringContaining('Submit Code Review'))
+      expect(result).toEqual(expect.stringContaining('Generate Code Review'))
       expect(result).toEqual(expect.stringContaining('repository-url'))
       expect(result).toEqual(expect.stringContaining('Generate code review'))
     })

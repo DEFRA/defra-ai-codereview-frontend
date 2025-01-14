@@ -38,12 +38,12 @@ describe('#context', () => {
         navigation: [
           {
             isActive: true,
-            text: 'Home',
+            text: 'Generate code review',
             url: '/'
           },
           {
             isActive: false,
-            text: 'Code Reviews',
+            text: 'View code reviews',
             url: '/code-reviews'
           }
         ],
@@ -127,12 +127,12 @@ describe('#context cache', () => {
         navigation: [
           {
             isActive: true,
-            text: 'Home',
+            text: 'Generate code review',
             url: '/'
           },
           {
             isActive: false,
-            text: 'Code Reviews',
+            text: 'View code reviews',
             url: '/code-reviews'
           }
         ],

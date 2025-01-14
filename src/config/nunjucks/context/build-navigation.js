@@ -4,12 +4,12 @@
 export function buildNavigation(request) {
   return [
     {
-      text: 'Home',
+      text: 'Generate code review',
       url: '/',
       isActive: request?.path === '/'
     },
     {
-      text: 'Code Reviews',
+      text: 'View code reviews',
       url: '/code-reviews',
       isActive: request?.path?.startsWith('/code-reviews')
     }

@@ -7,7 +7,7 @@
 {% block content %}
   {{ appHeading({
     text: heading,
-    caption: "Submit a repository for code review"
+    caption: "Submit a repository for code review by entering the repository URL"
   }) }}
 
   {% if errors %}
@@ -28,6 +28,7 @@
       type: "url",
       autocomplete: "url",
       spellcheck: false,
+      classes: "govuk-!-width-two-thirds",
       errorMessage: errors.repositoryUrl,
       value: values.repositoryUrl
     }) }}

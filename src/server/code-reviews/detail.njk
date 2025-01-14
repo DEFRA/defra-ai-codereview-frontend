@@ -24,7 +24,7 @@
         },
         {
           key: {
-            text: "Created At",
+            text: "Created",
             classes: "govuk-!-width-one-third"
           },
           value: {
@@ -34,7 +34,7 @@
         },
         {
           key: {
-            text: "Updated At",
+            text: "Updated",
             classes: "govuk-!-width-one-third"
           },
           value: {
@@ -50,7 +50,7 @@
           value: {
             html: govukTag({
               text: review.status | replace("_", " ") | title,
-              classes: "govuk-tag--" + review.status | lower,
+              classes: "govuk-tag--" + (review.status | lower == "failed" and "red" or (review.status | lower == "completed" and "green" or "blue")),
               attributes: {
                 "role": "status",
                 "aria-label": "Review status: " + (review.status | replace("_", " ") | title)

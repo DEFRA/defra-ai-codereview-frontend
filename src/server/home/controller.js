@@ -19,7 +19,7 @@ function isValidUrl(url) {
 export function getHome(_request, h) {
   return h.view('home/index', {
     pageTitle: 'Home',
-    heading: 'Submit Code Review',
+    heading: 'Generate Code Review',
     values: {},
     errors: null
   })
@@ -35,7 +35,7 @@ export async function postHome(request, h) {
   if (!repositoryUrl) {
     return h.view('home/index', {
       pageTitle: 'Home',
-      heading: 'Submit Code Review',
+      heading: 'Generate Code Review',
       values: { repositoryUrl },
       errors: {
         repositoryUrl: {
@@ -54,7 +54,7 @@ export async function postHome(request, h) {
   if (!isValidUrl(repositoryUrl)) {
     return h.view('home/index', {
       pageTitle: 'Home',
-      heading: 'Submit Code Review',
+      heading: 'Generate Code Review',
       values: { repositoryUrl },
       errors: {
         repositoryUrl: {
@@ -92,7 +92,7 @@ export async function postHome(request, h) {
     request.logger.error('Error creating code review:', err)
     return h.view('home/index', {
       pageTitle: 'Home',
-      heading: 'Submit Code Review',
+      heading: 'Generate Code Review',
       values: { repositoryUrl },
       errors: {
         repositoryUrl: {
