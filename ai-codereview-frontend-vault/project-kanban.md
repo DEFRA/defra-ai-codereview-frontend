@@ -6,6 +6,7 @@ kanban-plugin: board
 
 ## To Do
 
+- [ ] update central cursor rules when done
 
 
 ## Doing
