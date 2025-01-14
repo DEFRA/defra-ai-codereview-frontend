@@ -270,3 +270,32 @@ Key directories and their purposes:
 - Maintain accessibility standards
 - Use proper HTML5 semantic elements
 - Include ARIA attributes where necessary
+
+### New Page Template Structure
+- Create new pages using the following template structure:
+  1. Controller file (`controller.js`) - Handles route logic
+  2. Controller test file (`controller.test.js`) - Tests for controller
+  3. Route registration file (`index.js`) - Registers routes with Hapi
+  4. View template (`index.njk`) - Page template following this structure:
+  ```njk
+  {% extends 'layouts/page.njk' %}
+
+  {% block content %}
+    {{ appHeading({
+      text: heading,
+      caption: "[caption here]"
+    }) }}
+
+    [html content here]
+
+  {% endblock %}
+  ```
+
+- Each new page directory should include:
+  - `controller.js` - Route handler logic
+  - `controller.test.js` - Controller tests
+  - `index.js` - Route registration
+  - `index.njk` - Page template
+- Pass page data from controller to template using h.view()
+- Use consistent variable naming between controller and template
+- Include comprehensive tests for new routes
