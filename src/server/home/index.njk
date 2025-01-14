@@ -1,11 +1,40 @@
 {% extends 'layouts/page.njk' %}
 
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
 {% block content %}
   {{ appHeading({
     text: heading,
-    caption: "Core delivery platform Node.js Frontend Template."
+    caption: "Submit a repository for code review"
   }) }}
 
-  <p>Hello World</p>
+  {% if errors %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: errors.items
+    }) }}
+  {% endif %}
+
+  <form method="post" action="/" novalidate>
+    {{ govukInput({
+      label: {
+        text: "Repository URL",
+        classes: "govuk-label--m"
+      },
+      id: "repository-url",
+      name: "repository_url",
+      type: "url",
+      autocomplete: "url",
+      spellcheck: false,
+      errorMessage: errors.repositoryUrl,
+      value: values.repositoryUrl
+    }) }}
+
+    {{ govukButton({
+      text: "Generate code review"
+    }) }}
+  </form>
 
 {% endblock %}
