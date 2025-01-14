@@ -125,9 +125,47 @@ describe('Code Reviews Controller', () => {
       await getCodeReviewById(mockRequest, mockH)
 
       expect(mockH.view).toHaveBeenCalledWith('error/index', {
-        statusCode: 404,
-        title: 'Not Found',
-        message: 'Not Found'
+        pageTitle: 'Code review not found',
+        heading: 'Code review not found',
+        message:
+          'The code review you are looking for does not exist. This may be because:',
+        messageList: [
+          'the URL is incorrect',
+          'the code review has been deleted',
+          'you do not have permission to view this code review'
+        ]
+      })
+    })
+
+    it('should handle 401 errors', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 401
+      })
+
+      await getCodeReviewById(mockRequest, mockH)
+
+      expect(mockH.view).toHaveBeenCalledWith('error/index', {
+        pageTitle: 'Unauthorized',
+        heading: 'You are not authorized to view this code review',
+        message:
+          'Please check that you have the correct permissions and try again.'
+      })
+    })
+
+    it('should handle 403 errors', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 403
+      })
+
+      await getCodeReviewById(mockRequest, mockH)
+
+      expect(mockH.view).toHaveBeenCalledWith('error/index', {
+        pageTitle: 'Forbidden',
+        heading: 'You do not have permission to view this code review',
+        message:
+          'Please contact your administrator if you believe this is incorrect.'
       })
     })
 
@@ -138,9 +176,11 @@ describe('Code Reviews Controller', () => {
 
       expect(mockRequest.logger.error).toHaveBeenCalled()
       expect(mockH.view).toHaveBeenCalledWith('error/index', {
-        statusCode: 500,
-        title: 'Error',
-        message: 'Error'
+        pageTitle: 'Sorry, there is a problem with the service',
+        heading: 'Sorry, there is a problem with the service',
+        message:
+          'Try again later. If the problem persists, please contact support.',
+        statusCode: 500
       })
     })
   })

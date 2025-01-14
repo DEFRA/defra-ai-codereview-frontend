@@ -63,9 +63,33 @@ export async function getCodeReviewById(request, h) {
 
     if (response.status === 404) {
       return h.view('error/index', {
-        statusCode: 404,
-        title: 'Not Found',
-        message: 'Not Found'
+        pageTitle: 'Code review not found',
+        heading: 'Code review not found',
+        message:
+          'The code review you are looking for does not exist. This may be because:',
+        messageList: [
+          'the URL is incorrect',
+          'the code review has been deleted',
+          'you do not have permission to view this code review'
+        ]
+      })
+    }
+
+    if (response.status === 401) {
+      return h.view('error/index', {
+        pageTitle: 'Unauthorized',
+        heading: 'You are not authorized to view this code review',
+        message:
+          'Please check that you have the correct permissions and try again.'
+      })
+    }
+
+    if (response.status === 403) {
+      return h.view('error/index', {
+        pageTitle: 'Forbidden',
+        heading: 'You do not have permission to view this code review',
+        message:
+          'Please contact your administrator if you believe this is incorrect.'
       })
     }
 
@@ -86,9 +110,11 @@ export async function getCodeReviewById(request, h) {
   } catch (err) {
     request.logger.error('Error fetching code review:', err)
     return h.view('error/index', {
-      statusCode: 500,
-      title: 'Error',
-      message: 'Error'
+      pageTitle: 'Sorry, there is a problem with the service',
+      heading: 'Sorry, there is a problem with the service',
+      message:
+        'Try again later. If the problem persists, please contact support.',
+      statusCode: 500
     })
   }
 }
