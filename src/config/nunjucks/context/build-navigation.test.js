@@ -25,7 +25,7 @@ describe('#buildNavigation', () => {
     ])
   })
 
-  test('Should provide expected highlighted navigation details', () => {
+  test('Should highlight home page in navigation', () => {
     expect(buildNavigation(mockRequest({ path: '/' }))).toEqual([
       {
         isActive: true,
@@ -34,6 +34,38 @@ describe('#buildNavigation', () => {
       },
       {
         isActive: false,
+        text: 'Code Reviews',
+        url: '/code-reviews'
+      }
+    ])
+  })
+
+  test('Should highlight code reviews list page in navigation', () => {
+    expect(buildNavigation(mockRequest({ path: '/code-reviews' }))).toEqual([
+      {
+        isActive: false,
+        text: 'Home',
+        url: '/'
+      },
+      {
+        isActive: true,
+        text: 'Code Reviews',
+        url: '/code-reviews'
+      }
+    ])
+  })
+
+  test('Should highlight code review detail page in navigation', () => {
+    expect(
+      buildNavigation(mockRequest({ path: '/code-reviews/123456789' }))
+    ).toEqual([
+      {
+        isActive: false,
+        text: 'Home',
+        url: '/'
+      },
+      {
+        isActive: true,
         text: 'Code Reviews',
         url: '/code-reviews'
       }

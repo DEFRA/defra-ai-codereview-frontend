@@ -5,6 +5,13 @@ describe('Code Reviews Controller', () => {
   let mockRequest
   let mockH
   let fetchSpy
+  const mockReview = {
+    _id: '123456789012345678901234',
+    repository_url: 'https://github.com/test/repo1',
+    status: 'completed',
+    created_at: '2024-01-14T12:00:00Z',
+    updated_at: '2024-01-14T13:00:00Z'
+  }
 
   beforeEach(() => {
     mockRequest = {
@@ -28,23 +35,12 @@ describe('Code Reviews Controller', () => {
   })
 
   describe('getCodeReviews', () => {
-    const mockReviews = [
-      {
-        _id: '123456789012345678901234',
-        repository_url: 'https://github.com/test/repo1',
-        status: 'completed',
-        created_at: '2024-01-14T12:00:00Z',
-        updated_at: '2024-01-14T13:00:00Z'
-      }
-    ]
+    const mockReviews = [mockReview]
 
     it('should fetch and format code reviews', async () => {
       fetchSpy.mockResolvedValueOnce({
         ok: true,
-        json: async () => {
-          await Promise.resolve()
-          return mockReviews
-        }
+        json: () => Promise.resolve(mockReviews)
       })
 
       await getCodeReviews(mockRequest, mockH)
@@ -79,24 +75,29 @@ describe('Code Reviews Controller', () => {
         message: 'Unable to fetch code reviews'
       })
     })
+
+    it('should handle non-ok response', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 500
+      })
+
+      await getCodeReviews(mockRequest, mockH)
+
+      expect(mockRequest.logger.error).toHaveBeenCalled()
+      expect(mockH.view).toHaveBeenCalledWith('error/index', {
+        statusCode: 500,
+        title: 'Error',
+        message: 'Unable to fetch code reviews'
+      })
+    })
   })
 
   describe('getCodeReviewById', () => {
-    const mockReview = {
-      _id: '123456789012345678901234',
-      repository_url: 'https://github.com/test/repo1',
-      status: 'completed',
-      created_at: '2024-01-14T12:00:00Z',
-      updated_at: '2024-01-14T13:00:00Z'
-    }
-
     it('should fetch and format a single code review', async () => {
       fetchSpy.mockResolvedValueOnce({
         ok: true,
-        json: async () => {
-          await Promise.resolve()
-          return mockReview
-        }
+        json: () => Promise.resolve(mockReview)
       })
 
       await getCodeReviewById(mockRequest, mockH)
@@ -169,6 +170,24 @@ describe('Code Reviews Controller', () => {
       })
     })
 
+    it('should handle other non-ok responses', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 500
+      })
+
+      await getCodeReviewById(mockRequest, mockH)
+
+      expect(mockRequest.logger.error).toHaveBeenCalled()
+      expect(mockH.view).toHaveBeenCalledWith('error/index', {
+        pageTitle: 'Sorry, there is a problem with the service',
+        heading: 'Sorry, there is a problem with the service',
+        message:
+          'Try again later. If the problem persists, please contact support.',
+        statusCode: 500
+      })
+    })
+
     it('should handle API errors', async () => {
       fetchSpy.mockRejectedValueOnce(new Error('API Error'))
 
@@ -181,6 +200,54 @@ describe('Code Reviews Controller', () => {
         message:
           'Try again later. If the problem persists, please contact support.',
         statusCode: 500
+      })
+    })
+  })
+
+  describe('formatDate', () => {
+    it('should handle noon (12pm)', async () => {
+      const noonReview = {
+        ...mockReview,
+        created_at: '2024-01-14T12:00:00Z',
+        updated_at: '2024-01-14T12:00:00Z'
+      }
+
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(noonReview)
+      })
+
+      await getCodeReviewById(mockRequest, mockH)
+
+      expect(mockH.view).toHaveBeenCalledWith('code-reviews/detail', {
+        pageTitle: 'Code Review Details',
+        review: expect.objectContaining({
+          created_at: '14 January 2024 at 12:00pm',
+          updated_at: '14 January 2024 at 12:00pm'
+        })
+      })
+    })
+
+    it('should handle midnight (12am)', async () => {
+      const midnightReview = {
+        ...mockReview,
+        created_at: '2024-01-14T00:00:00Z',
+        updated_at: '2024-01-14T00:00:00Z'
+      }
+
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(midnightReview)
+      })
+
+      await getCodeReviewById(mockRequest, mockH)
+
+      expect(mockH.view).toHaveBeenCalledWith('code-reviews/detail', {
+        pageTitle: 'Code Review Details',
+        review: expect.objectContaining({
+          created_at: '14 January 2024 at 12:00am',
+          updated_at: '14 January 2024 at 12:00am'
+        })
       })
     })
   })
