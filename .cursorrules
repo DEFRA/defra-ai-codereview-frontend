@@ -35,7 +35,6 @@ A Web Application for submitting code repositories for review. Also provides a i
 │   │   ├── javascripts/   # Client-side JavaScript
 │   │   └── stylesheets/   # SCSS stylesheets
 │   ├── server/            # Backend Node.js application code
-│   │   ├── about/         # About page routes and handlers
 │   │   ├── common/        # Shared server utilities
 │   │   ├── error/         # Error handling and pages
 │   │   ├── health/        # Health check endpoints
@@ -62,7 +61,6 @@ Key directories and their purposes:
 - `src/client/common`: Shared client-side utilities and helpers
 - `src/client/javascripts`: Client-side JavaScript modules
 - `src/client/stylesheets`: SCSS styling organized into components, core, helpers, and partials
-- `src/server/about`: About page routes and handlers
 - `src/server/common`: Shared server-side utilities
 - `src/server/error`: Error handling and error pages
 - `src/server/health`: Health check endpoints
