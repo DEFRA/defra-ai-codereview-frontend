@@ -1,4 +1,5 @@
 import { config } from '~/src/config/config.js'
+import { marked } from 'marked'
 
 /**
  * @typedef {object} CodeReview
@@ -124,12 +125,18 @@ export async function getCodeReviewById(request, h) {
 
     const review = await response.json()
 
+    // Convert markdown to HTML safely
+    const reportHtml = review.compliance_report
+      ? marked(review.compliance_report, { sanitize: true })
+      : '<p class="govuk-body">No report available yet.</p>'
+
     return h.view('code-reviews/detail', {
       pageTitle: 'Code Review Details',
       review: {
         ...review,
         created_at: formatDate(review.created_at),
-        updated_at: formatDate(review.updated_at)
+        updated_at: formatDate(review.updated_at),
+        reportHtml
       }
     })
   } catch (err) {
