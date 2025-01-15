@@ -3,11 +3,12 @@
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 
 {% block content %}
   {{ appHeading({
     text: heading,
-    caption: "Submit a repository for code review by entering the repository URL"
+    caption: "Submit a git repository for code review"
   }) }}
 
   {% if errors %}
@@ -31,6 +32,36 @@
       classes: "govuk-!-width-two-thirds",
       errorMessage: errors.repositoryUrl,
       value: values.repositoryUrl
+    }) }}
+
+    {{ govukCheckboxes({
+      name: "standards",
+      fieldset: {
+        legend: {
+          text: "Standards",
+          classes: "govuk-fieldset__legend--m"
+        }
+      },
+      items: [
+        {
+          value: "defra",
+          text: "Defra software development standards",
+          checked: true,
+          hint: {
+            html: 'View the <a class="govuk-link" href="https://github.com/DEFRA/software-development-standards" target="_blank" rel="noopener noreferrer">Defra software development standards (opens in new tab)</a>'
+          }
+        },
+        {
+          value: "standard2",
+          text: "Another standard",
+          disabled: true
+        },
+        {
+          value: "standard3", 
+          text: "Another standard",
+          disabled: true
+        }
+      ]
     }) }}
 
     {{ govukButton({
