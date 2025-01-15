@@ -1,59 +1,72 @@
 {% extends 'layouts/page.njk' %}
 
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+
 {% block content %}
   {{ appHeading({
     text: heading,
-    caption: "Core delivery platform Node.js Frontend Template."
+    caption: "Submit a git repository for code review"
   }) }}
 
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <div class="govuk-body" data-testid="app-page-body">
-        <p>
-          Welcome to the Frontend Template, a starter kit for Core Delivery Platform Node.js Frontends 🚀
-        </p>
-        <p>
-          Based on <a href="https://defra.github.io/software-development-standards">DEFRA</a> and <a
-            href="https://design-system.service.gov.uk/">GOV.UK</a> best practices this starter kit provides you with
-          a deployable, production ready template 🙌🏻 to start your new service with.
-        </p>
-        <p>This template comes with:</p>
-        <ul>
-          <li>
-            <a href="https://frontend.design-system.service.gov.uk/">GOV.UK Frontend</a>
-          </li>
-          <li>
-            <a href="https://hapi.dev">Hapi.js</a>
-          </li>
-          <li>
-            <a href="https://mozilla.github.io/nunjucks/">Nunjucks</a>
-          </li>
-          <li>
-            <a href="https://github.com/mozilla/node-convict">Node Convict</a>
-          </li>
-          <li>
-            <a href="https://jestjs.io/">Jest testing</a>
-          </li>
-          <li>GitHub Actions Pull Request and Publish jobs</li>
-          <li>
-            <a href="https://github.com/pinojs/pino">PinoJs logging</a>
-          </li>
-          <li>
-            <a href="https://standardjs.com">Standard JS</a>
-          </li>
-          <li>
-            <a href="https://eslint.org">ESLint</a>
-          </li>
-          <li>
-            <a href="https://stylelint.io">StyleLint</a>
-          </li>
-          <li>
-            <a href="https://prettier.io">Prettier</a>
-          </li>
-          <li>and lots more... 😎</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+  {% if errors %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: errors.items
+    }) }}
+  {% endif %}
+
+  <form method="post" action="/" novalidate>
+    {{ govukInput({
+      label: {
+        text: "Repository URL",
+        classes: "govuk-label--m"
+      },
+      id: "repository-url",
+      name: "repository_url",
+      type: "url",
+      autocomplete: "url",
+      spellcheck: false,
+      classes: "govuk-!-width-two-thirds",
+      errorMessage: errors.repositoryUrl,
+      value: values.repositoryUrl
+    }) }}
+
+    {{ govukCheckboxes({
+      name: "standards",
+      fieldset: {
+        legend: {
+          text: "Standards",
+          classes: "govuk-fieldset__legend--m"
+        }
+      },
+      items: [
+        {
+          value: "defra",
+          text: "Defra software development standards",
+          checked: true,
+          hint: {
+            html: 'View the <a class="govuk-link" href="https://github.com/DEFRA/software-development-standards" target="_blank" rel="noopener noreferrer">Defra software development standards (opens in new tab)</a>'
+          }
+        },
+        {
+          value: "standard2",
+          text: "Another standard",
+          disabled: true
+        },
+        {
+          value: "standard3", 
+          text: "Another standard",
+          disabled: true
+        }
+      ]
+    }) }}
+
+    {{ govukButton({
+      text: "Generate code review"
+    }) }}
+  </form>
 
 {% endblock %}

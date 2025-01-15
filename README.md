@@ -4,7 +4,7 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_defra-ai-codereview-frontend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_defra-ai-codereview-frontend)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_defra-ai-codereview-frontend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_defra-ai-codereview-frontend)
 
-Core delivery platform Node.js Frontend Template.
+A web application for submitting code repositories for AI-powered code review. This frontend service provides an interface for submitting repositories and reviewing the generated code analysis reports.
 
 - [Requirements](#requirements)
   - [Node.js](#nodejs)
@@ -53,9 +53,7 @@ instance of the service and it will not persist between restarts.
 
 ## Redis
 
-Redis is an in-memory key-value store. Every instance of a service has access to the same Redis key-value store similar
-to how services might have a database (or MongoDB). All frontend services are given access to a namespaced prefixed that
-matches the service name. e.g. `my-service` will have access to everything in Redis that is prefixed with `my-service`.
+Redis is used for storing session data and caching code review results. Every instance of the service has access to the same Redis key-value store. All frontend services are given access to a namespaced prefix that matches the service name. e.g. `defra-ai-codereview-frontend` will have access to everything in Redis that is prefixed with `defra-ai-codereview-frontend`.
 
 If your service does not require a session cache to be shared between instances or if you don't require Redis, you can
 disable setting `SESSION_CACHE_ENGINE=false` or changing the default value in `~/src/config/index.js`.

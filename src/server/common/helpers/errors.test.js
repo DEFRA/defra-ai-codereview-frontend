@@ -22,7 +22,7 @@ describe('#errors', () => {
     })
 
     expect(result).toEqual(
-      expect.stringContaining('Page not found | defra-ai-codereview-frontend')
+      expect.stringContaining('Page not found | Intelligent Code Reviewer')
     )
     expect(statusCode).toBe(statusCodes.notFound)
   })

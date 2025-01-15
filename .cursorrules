@@ -1,0 +1,299 @@
+# Defra AI Code Review Frontend
+
+## Project Context
+A Web Application for submitting code repositories for review. Also provides a interface for reviewing the code reviews. A frontend for the defra code review API.
+
+## Language
+- JavaScript
+- TypeScript (for type checking only)
+
+## Tech Stack
+- Node.js
+- Hapi.js (server framework)
+- GOV.UK Frontend (UI components)     
+- Nunjucks (template engine)
+- Webpack (bundling and asset management)
+- Babel (JavaScript transpilation)
+- Jest (testing framework)
+- ESLint & Prettier (code formatting and linting)
+- SCSS (styling)
+- PostCSS (CSS processing)
+- Stylelint (CSS linting)
+
+## Development Workflow
+- Use npm scripts for common tasks
+- always run `npm run format` after making any file changes
+- always run `npm run lint:fix` after making any file changes
+- when you are done modifying all the files, then run `npm run test` to ensure that your changes have not broken any existing functionality
+
+## Project Structure
+```
+/
+├── src/                    # Source code
+│   ├── client/            # Frontend assets and code
+│   │   ├── common/        # Shared client utilities and helpers
+│   │   ├── javascripts/   # Client-side JavaScript
+│   │   └── stylesheets/   # SCSS stylesheets
+│   ├── server/            # Backend Node.js application code
+│   │   ├── common/        # Shared server utilities
+│   │   ├── error/         # Error handling and pages
+│   │   ├── health/        # Health check endpoints
+│   │   ├── home/          # Home page routes and handlers
+│   │   ├── index.js       # Server entry point
+│   │   └── router.js      # Route definitions
+│   ├── config/            # Application configuration
+│   └── index.js           # Application entry point
+├── compose/               # Docker compose configuration files
+├── .github/               # GitHub workflows and templates
+├── .jest/                 # Jest test configuration
+├── .husky/                # Git hooks configuration
+├── config files           # Various configuration files:
+│   ├── .eslintrc.cjs     # ESLint configuration
+│   ├── .prettierrc.js    # Prettier configuration
+│   ├── babel.config.cjs  # Babel configuration
+│   ├── jest.config.js    # Jest configuration
+│   ├── webpack.config.js # Webpack configuration
+│   └── tsconfig.json     # TypeScript configuration
+└── package.json          # Project dependencies and scripts
+```
+
+Key directories and their purposes:
+- `src/client/common`: Shared client-side utilities and helpers
+- `src/client/javascripts`: Client-side JavaScript modules
+- `src/client/stylesheets`: SCSS styling organized into components, core, helpers, and partials
+- `src/server/common`: Shared server-side utilities
+- `src/server/error`: Error handling and error pages
+- `src/server/health`: Health check endpoints
+- `src/server/home`: Home page routes and handlers
+- `compose/`: Docker compose files for different environments
+- `.github/`: CI/CD workflows and GitHub-specific configuration
+- `.jest/`: Test configuration and setup files
+- `.husky/`: Git hooks for maintaining code quality
+
+## Coding Standards
+
+## Style
+### Code Style
+- Use Standard JS for linting and formatting.
+- Maintain consistent indentation and code structure.
+- Avoid nested callbacks; prefer async/await.
+- Format code using prettier and use the .prettierrc file.
+- Use JSDoc comments for type annotations in .js files
+- Use TypeScript for type checking only (no .ts files)
+- Include comprehensive JSDoc type definitions for function parameters and returns
+- Follow TypeScript-enhanced ESLint rules
+
+### Styling
+- Use SCSS for styling
+- Follow GOV.UK Frontend naming conventions for components
+- Organize styles into:
+  - components/ - For reusable components
+  - core/ - For core layout elements
+  - helpers/ - For mixins and functions
+  - partials/ - For page-specific styles
+  - variables/ - For shared variables
+- Use BEM-style naming with 'app-' prefix for custom components
+
+## Rules
+### General Guidelines
+- Use vanilla JavaScript; avoid TypeScript.
+- Do not use front-end frameworks like React, Angular, or Vue.
+- Ensure all code follows progressive enhancement principles.
+- Use clear and descriptive variable and function names.
+- Document complex code with comments.
+- Separate concerns by organizing code logically.
+
+### Functions
+- Use named functions instead of arrow functions for top-level declarations
+- Use arrow functions for callbacks and anonymous functions
+- Function names should be camelCase and descriptive of their purpose
+
+### Imports/Exports
+- Use named exports instead of default exports
+- Group imports by type (core Node.js modules first, then external packages, then internal imports)
+- Use absolute imports with the '~' alias for internal project files
+- Include JSDoc import statements for types when needed
+
+### Types
+- Use JSDoc comments for type annotations rather than TypeScript syntax in .js files
+- TypeScript is used for type checking only (no .ts files)
+- Include comprehensive type definitions for function parameters and returns
+
+### Module System
+- Use ES Modules (import/export) instead of CommonJS (require/module.exports)
+- Always use named exports instead of default exports
+- Add .js extension to all import statements
+
+### File Structure
+- Group related functionality into directories (e.g., helpers, components)
+- Use index.js files to aggregate and re-export from directories
+- Keep files focused on a single responsibility
+- Use .gitkeep for empty directories that need to be tracked
+
+### Configuration
+- Use convict for configuration management
+- Do not embedd secrets in the codebase.
+- Validate configuration on startup
+- Separate configuration by concern (e.g., redis, session, logging)
+- Use postcss.config.js for PostCSS configuration
+- Use stylelint.config.js for CSS linting rules
+- Use nodemon.json for development server settings
+
+### Error Handling
+- Use explicit error types
+- Log errors appropriately using the logging system
+- Include stack traces in development but not production
+
+### Node.js Standards
+- Do not store session state on the app server.
+- Use distributed caches for session management.
+- Follow the same standards for linting and formatting as front-end code.
+
+## Testing
+- Use Jest as the testing framework
+- Include comprehensive test cases covering success and error scenarios
+- Test the functionality; not the implementation
+- Write tests that cover end-to-end functionality covering multipule units
+- For apis, test the API calls with expected input and output
+- For UI's, test the interface with expected behaviours 
+- Mock external dependencies like databases, file systems, API's
+- Maintain .jest/setup.js for global test configuration and mocks
+
+## Logging
+- Use pino as the logging framework
+- Log levels controlled via environment variables
+- Different log formats for development (pretty) and production (ECS)
+- Include request ID in logs for tracing
+- Redact sensitive information in production logs
+
+## Git Usage
+
+### Commit Message Prefixes
+- `fix:` for bug fixes
+- `feat:` for new features
+- `perf:` for performance improvements
+- `docs:` for documentation updates
+- `style:` for formatting changes
+- `refactor:` for code refactoring
+- `test:` for adding missing tests
+- `chore:` for maintenance tasks
+
+### Commit Guidelines
+- Use lowercase for messages
+- Keep the summary line concise
+- Reference issue numbers when applicable
+
+## Documentation
+- Maintain clear README
+- Use JSDoc for function and type documentation
+- Document configuration options
+- Include examples where appropriate
+
+## Security
+- Enable secure contexts in production
+- Use TLS for Redis in production
+- Implement proper session handling
+- Set secure cookie flags in production
+- Validate all inputs to prevent injection attacks.
+
+## Nunjucks & GOV.UK Frontend Rules
+
+### Template Structure
+- Use `{% extends 'layouts/page.njk' %}` as the base template for all pages
+- Place page-specific content within the `{% block content %}` block
+- Use `govuk-` prefix for GOV.UK Frontend components
+- Use `app-` prefix for custom components
+- Keep templates DRY by using macros and includes
+
+### Component Usage
+- Import GOV.UK components globally in layout files using:
+  ```njk
+  {% from "govuk/components/[component-name]/macro.njk" import govuk[ComponentName] %}
+  ```
+- Import custom components globally in layout files using:
+  ```njk
+  {% from "[component-name]/macro.njk" import app[ComponentName] %}
+  ```
+- Follow GOV.UK Frontend component parameter structure:
+  ```njk
+  {{ govukComponent({
+    key: value,
+    classes: "additional-classes"
+  }) }}
+  ```
+
+### Custom Components
+- Create components in `src/server/common/components/[component-name]/`
+- Include three files per component:
+  1. `template.njk` - Component markup
+  2. `macro.njk` - Component macro definition
+  3. `_[component-name].scss` - Component styles
+- Use BEM naming convention with 'app-' prefix
+- Include data-testid attributes for testing
+
+### Layout & Grid
+- Use GOV.UK Frontend grid system:
+  - `govuk-grid-row` for rows
+  - `govuk-grid-column-*` for columns
+- Follow GOV.UK Frontend spacing units using `govuk-spacing()` function
+- Use GOV.UK Frontend typography classes (e.g., `govuk-body`, `govuk-heading-xl`)
+
+### Styling
+- Import GOV.UK Frontend styles using:
+  ```scss
+  @use "govuk-frontend" as *;
+  ```
+- Use GOV.UK Frontend color variables and functions
+- Follow GOV.UK Frontend breakpoints using `govuk-media-query()`
+- Namespace custom styles with 'app-' prefix
+
+### Testing
+- Use the provided `renderComponent()` helper for component testing
+- Include data-testid attributes for component testing
+- Test component variations and edge cases
+
+### Configuration
+- Configure Nunjucks environment with:
+  - `trimBlocks: true`
+  - `lstripBlocks: true`
+  - `autoescape: true`
+- Set up proper paths for GOV.UK Frontend templates
+- Use filters for data formatting (e.g., dates, currency)
+- Add custom globals when needed
+
+### Best Practices
+- Keep templates focused on presentation logic
+- Use macros for reusable template patterns
+- Follow progressive enhancement principles
+- Maintain accessibility standards
+- Use proper HTML5 semantic elements
+- Include ARIA attributes where necessary
+
+### New Page Template Structure
+- Create new pages using the following template structure:
+  1. Controller file (`controller.js`) - Handles route logic
+  2. Controller test file (`controller.test.js`) - Tests for controller
+  3. Route registration file (`index.js`) - Registers routes with Hapi
+  4. View template (`index.njk`) - Page template following this structure:
+  ```njk
+  {% extends 'layouts/page.njk' %}
+
+  {% block content %}
+    {{ appHeading({
+      text: heading,
+      caption: "[caption here]"
+    }) }}
+
+    [html content here]
+
+  {% endblock %}
+  ```
+
+- Each new page directory should include:
+  - `controller.js` - Route handler logic
+  - `controller.test.js` - Controller tests
+  - `index.js` - Route registration
+  - `index.njk` - Page template
+- Pass page data from controller to template using h.view()
+- Use consistent variable naming between controller and template
+- Include comprehensive tests for new routes
