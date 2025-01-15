@@ -5,7 +5,7 @@
 {% from "govuk/components/tag/macro.njk" import govukTag %}
 
 {% block content %}
-  <h1 class="govuk-heading-xl">Code Review Details</h1>
+  <h1 class="govuk-heading-l">Code Review Details</h1>
 
   {% if review %}
     {{ govukSummaryList({
@@ -67,10 +67,32 @@
       ariaLabel: "Code review report sections",
       items: [
         {
-          label: "Report Overview",
-          id: "overview",
+          label: "Defra software development standards",
+          id: "defra-dev-standards",
           panel: {
             html: review.reportHtml
+          }
+        },
+        {
+          label: "Another standard",
+          id: "another-standard-1",
+          disabled: true,
+          classes: "govuk-tabs__list-item--no-hover",
+          attributes: {
+            "tabindex": "-1",
+            "aria-disabled": "true",
+            "style": "pointer-events: none; color: #505a5f; text-decoration: none;"
+          }
+        },
+        {
+          label: "Another standard",
+          id: "another-standard-2",
+          disabled: true,
+          classes: "govuk-tabs__list-item--no-hover",
+          attributes: {
+            "tabindex": "-1",
+            "aria-disabled": "true",
+            "style": "pointer-events: none; color: #505a5f; text-decoration: none;"
           }
         }
       ]
