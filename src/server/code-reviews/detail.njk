@@ -53,7 +53,8 @@
               classes: "govuk-tag--" + (review.status | lower == "failed" and "red" or (review.status | lower == "completed" and "green" or "blue")),
               attributes: {
                 "role": "status",
-                "aria-label": "Review status: " + (review.status | replace("_", " ") | title)
+                "aria-label": "Review status: " + (review.status | replace("_", " ") | title),
+                "data-review-id": review._id
               }
             })
           }

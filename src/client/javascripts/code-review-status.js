@@ -9,7 +9,7 @@
  * @param {HTMLElement} statusElement - The status tag element to update
  * @param {string} newStatus - The new status value
  */
-function updateStatusElement(statusElement, newStatus) {
+export function updateStatusElement(statusElement, newStatus) {
   const formattedStatus = newStatus.replace('_', ' ')
   const titleStatus =
     formattedStatus.charAt(0).toUpperCase() + formattedStatus.slice(1)
@@ -23,6 +23,8 @@ function updateStatusElement(statusElement, newStatus) {
     statusElement.classList.add('govuk-tag--red')
   } else if (newStatus === 'completed') {
     statusElement.classList.add('govuk-tag--green')
+  } else {
+    statusElement.classList.add('govuk-tag--blue')
   }
 }
 
@@ -31,7 +33,7 @@ function updateStatusElement(statusElement, newStatus) {
  * @param {string} reviewId - The ID of the review to check
  * @returns {Promise<CodeReviewStatus>}
  */
-async function fetchReviewStatus(reviewId) {
+export async function fetchReviewStatus(reviewId) {
   const response = await fetch(`/api/code-reviews/${reviewId}/status`)
   if (!response.ok) {
     throw new Error(
@@ -39,6 +41,16 @@ async function fetchReviewStatus(reviewId) {
     )
   }
   return response.json()
+}
+
+/**
+ * Checks if a status needs polling
+ * @param {string} status - The status to check
+ * @returns {boolean} - Whether the status needs polling
+ */
+export function needsPolling(status) {
+  const pollStatuses = ['pending', 'in progress', 'started']
+  return pollStatuses.includes(status.toLowerCase().trim())
 }
 
 /**
@@ -53,19 +65,18 @@ export function initStatusPolling() {
 
     for (const element of statusElements) {
       const currentStatus = element.textContent.toLowerCase().trim()
+      const reviewId = element.getAttribute('data-review-id')
 
-      if (
-        currentStatus === 'pending' ||
-        currentStatus === 'in progress' ||
-        currentStatus === 'started'
-      ) {
+      if (needsPolling(currentStatus)) {
         hasInProgressReviews = true
         try {
-          const reviewId = element.getAttribute('data-review-id')
           const { status } = await fetchReviewStatus(reviewId)
-          updateStatusElement(element, status)
+          if (status !== currentStatus) {
+            updateStatusElement(element, status)
+          }
+          // Keep polling if new status still needs polling
+          hasInProgressReviews = hasInProgressReviews || needsPolling(status)
         } catch (error) {
-          // Error handling is done silently to avoid console noise
           hasInProgressReviews = true // Keep polling on error
         }
       }

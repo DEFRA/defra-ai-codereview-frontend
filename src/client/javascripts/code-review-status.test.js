@@ -2,7 +2,12 @@
  * @jest-environment jsdom
  */
 
-import { initStatusPolling } from './code-review-status.js'
+import {
+  initStatusPolling,
+  updateStatusElement,
+  fetchReviewStatus,
+  needsPolling
+} from './code-review-status.js'
 
 describe('Code Review Status', () => {
   let fetchMock
@@ -37,6 +42,114 @@ describe('Code Review Status', () => {
     global.setInterval = setInterval
     // Clear timers
     jest.useRealTimers()
+  })
+
+  describe('updateStatusElement', () => {
+    let statusElement
+
+    beforeEach(() => {
+      statusElement = document.createElement('strong')
+      statusElement.className = 'govuk-tag'
+      document.body.appendChild(statusElement)
+    })
+
+    it('should update text content and aria-label', () => {
+      updateStatusElement(statusElement, 'completed')
+      expect(statusElement.textContent).toBe('Completed')
+      expect(statusElement.getAttribute('aria-label')).toBe(
+        'Review status: Completed'
+      )
+    })
+
+    it('should format status with underscores', () => {
+      updateStatusElement(statusElement, 'in_progress')
+      expect(statusElement.textContent).toBe('In progress')
+      expect(statusElement.getAttribute('aria-label')).toBe(
+        'Review status: In progress'
+      )
+    })
+
+    it('should add red tag class for failed status', () => {
+      updateStatusElement(statusElement, 'failed')
+      expect(statusElement.classList.contains('govuk-tag--red')).toBe(true)
+    })
+
+    it('should add green tag class for completed status', () => {
+      updateStatusElement(statusElement, 'completed')
+      expect(statusElement.classList.contains('govuk-tag--green')).toBe(true)
+    })
+
+    it('should add blue tag class for other statuses', () => {
+      updateStatusElement(statusElement, 'pending')
+      expect(statusElement.classList.contains('govuk-tag--blue')).toBe(true)
+    })
+  })
+
+  describe('fetchReviewStatus', () => {
+    beforeEach(() => {
+      fetchMock = jest.fn()
+      global.fetch = fetchMock
+    })
+
+    it('should fetch status successfully', async () => {
+      const mockResponse = { id: '123', status: 'completed' }
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockResponse)
+      })
+
+      const result = await fetchReviewStatus('123')
+      expect(result).toEqual(mockResponse)
+      expect(fetchMock).toHaveBeenCalledWith('/api/code-reviews/123/status')
+    })
+
+    it('should throw error on failed fetch', async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: false,
+        status: 404
+      })
+
+      await expect(fetchReviewStatus('123')).rejects.toThrow(
+        'Failed to fetch status for review 123: 404'
+      )
+    })
+
+    it('should throw error on network failure', async () => {
+      fetchMock.mockRejectedValueOnce(new Error('Network error'))
+      await expect(fetchReviewStatus('123')).rejects.toThrow('Network error')
+    })
+  })
+
+  describe('needsPolling', () => {
+    it('should return true for pending status', () => {
+      expect(needsPolling('pending')).toBe(true)
+    })
+
+    it('should return true for in progress status', () => {
+      expect(needsPolling('in progress')).toBe(true)
+    })
+
+    it('should return true for started status', () => {
+      expect(needsPolling('started')).toBe(true)
+    })
+
+    it('should handle case insensitivity', () => {
+      expect(needsPolling('PENDING')).toBe(true)
+      expect(needsPolling('In Progress')).toBe(true)
+    })
+
+    it('should handle whitespace', () => {
+      expect(needsPolling('  pending  ')).toBe(true)
+      expect(needsPolling('  completed  ')).toBe(false)
+    })
+
+    it('should return false for completed status', () => {
+      expect(needsPolling('completed')).toBe(false)
+    })
+
+    it('should return false for failed status', () => {
+      expect(needsPolling('failed')).toBe(false)
+    })
   })
 
   describe('initStatusPolling', () => {
