@@ -11,37 +11,18 @@ import {
 
 describe('Code Review Status', () => {
   let fetchMock
-  let originalFetch
-  let intervals = []
 
   beforeEach(() => {
-    // Store original fetch
-    originalFetch = global.fetch
-    // Clear any previous intervals
-    jest.useRealTimers()
-    // Clear any previous DOM
+    jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] })
+    fetchMock = jest.fn()
+    global.fetch = fetchMock
     document.body.innerHTML = ''
-    // Reset all mocks
-    jest.clearAllMocks()
-    // Track intervals
-    const originalSetInterval = global.setInterval
-    global.setInterval = (...args) => {
-      const interval = originalSetInterval(...args)
-      intervals.push(interval)
-      return interval
-    }
   })
 
   afterEach(() => {
-    // Restore original fetch
-    global.fetch = originalFetch
-    // Clear any remaining intervals
-    intervals.forEach(clearInterval)
-    intervals = []
-    // Restore original setInterval
-    global.setInterval = setInterval
-    // Clear timers
     jest.useRealTimers()
+    jest.clearAllMocks()
+    global.fetch = undefined
   })
 
   describe('updateStatusElement', () => {
@@ -53,7 +34,7 @@ describe('Code Review Status', () => {
       document.body.appendChild(statusElement)
     })
 
-    it('should update text content and aria-label', () => {
+    it('updates text content and aria-label', () => {
       updateStatusElement(statusElement, 'completed')
       expect(statusElement.textContent).toBe('Completed')
       expect(statusElement.getAttribute('aria-label')).toBe(
@@ -61,7 +42,7 @@ describe('Code Review Status', () => {
       )
     })
 
-    it('should format status with underscores', () => {
+    it('formats status with underscores', () => {
       updateStatusElement(statusElement, 'in_progress')
       expect(statusElement.textContent).toBe('In progress')
       expect(statusElement.getAttribute('aria-label')).toBe(
@@ -69,29 +50,24 @@ describe('Code Review Status', () => {
       )
     })
 
-    it('should add red tag class for failed status', () => {
+    it('adds red tag class for failed status', () => {
       updateStatusElement(statusElement, 'failed')
       expect(statusElement.classList.contains('govuk-tag--red')).toBe(true)
     })
 
-    it('should add green tag class for completed status', () => {
+    it('adds green tag class for completed status', () => {
       updateStatusElement(statusElement, 'completed')
       expect(statusElement.classList.contains('govuk-tag--green')).toBe(true)
     })
 
-    it('should add blue tag class for other statuses', () => {
+    it('adds blue tag class for other statuses', () => {
       updateStatusElement(statusElement, 'pending')
       expect(statusElement.classList.contains('govuk-tag--blue')).toBe(true)
     })
   })
 
   describe('fetchReviewStatus', () => {
-    beforeEach(() => {
-      fetchMock = jest.fn()
-      global.fetch = fetchMock
-    })
-
-    it('should fetch status successfully', async () => {
+    it('fetches status successfully', async () => {
       const mockResponse = { id: '123', status: 'completed' }
       fetchMock.mockResolvedValueOnce({
         ok: true,
@@ -103,204 +79,156 @@ describe('Code Review Status', () => {
       expect(fetchMock).toHaveBeenCalledWith('/api/code-reviews/123/status')
     })
 
-    it('should throw error on failed fetch', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: false,
-        status: 404
-      })
-
+    it('throws error on failed fetch', async () => {
+      fetchMock.mockResolvedValueOnce({ ok: false, status: 404 })
       await expect(fetchReviewStatus('123')).rejects.toThrow(
         'Failed to fetch status for review 123: 404'
       )
     })
 
-    it('should throw error on network failure', async () => {
+    it('throws error on network failure', async () => {
       fetchMock.mockRejectedValueOnce(new Error('Network error'))
       await expect(fetchReviewStatus('123')).rejects.toThrow('Network error')
     })
   })
 
   describe('needsPolling', () => {
-    it('should return true for pending status', () => {
-      expect(needsPolling('pending')).toBe(true)
+    const pollableStatuses = ['pending', 'in progress', 'started']
+    pollableStatuses.forEach((status) => {
+      it(`returns true for "${status}" status`, () => {
+        expect(needsPolling(status)).toBe(true)
+      })
     })
 
-    it('should return true for in progress status', () => {
-      expect(needsPolling('in progress')).toBe(true)
-    })
-
-    it('should return true for started status', () => {
-      expect(needsPolling('started')).toBe(true)
-    })
-
-    it('should handle case insensitivity', () => {
+    it('handles case insensitivity', () => {
       expect(needsPolling('PENDING')).toBe(true)
       expect(needsPolling('In Progress')).toBe(true)
     })
 
-    it('should handle whitespace', () => {
+    it('handles whitespace', () => {
       expect(needsPolling('  pending  ')).toBe(true)
       expect(needsPolling('  completed  ')).toBe(false)
     })
 
-    it('should return false for completed status', () => {
-      expect(needsPolling('completed')).toBe(false)
-    })
-
-    it('should return false for failed status', () => {
-      expect(needsPolling('failed')).toBe(false)
+    const completedStatuses = ['completed', 'failed']
+    completedStatuses.forEach((status) => {
+      it(`returns false for "${status}" status`, () => {
+        expect(needsPolling(status)).toBe(false)
+      })
     })
   })
 
   describe('initStatusPolling', () => {
-    beforeEach(() => {
-      // Mock fetch
-      fetchMock = jest.fn()
-      global.fetch = fetchMock
-      // Use fake timers
-      jest.useFakeTimers()
-    })
+    const createReviewElement = (id, status) => {
+      const displayStatus = status.charAt(0).toUpperCase() + status.slice(1)
+      return `
+        <strong data-review-id="${id}" class="govuk-tag${status.toLowerCase() === 'completed' ? ' govuk-tag--green' : ''}">${displayStatus}</strong>
+      `
+    }
 
-    it('should not start polling if no reviews are present', () => {
-      // Setup
+    it('does not start polling if no reviews are present', async () => {
       document.body.innerHTML = '<div></div>'
-
-      // Act
       initStatusPolling()
-
-      // Assert
+      await jest.runAllTimersAsync()
       expect(fetchMock).not.toHaveBeenCalled()
     })
 
-    it('should not poll for completed reviews', () => {
-      // Setup
-      document.body.innerHTML = `
-        <div>
-          <strong data-review-id="123" class="govuk-tag govuk-tag--green">Completed</strong>
-        </div>
-      `
-
-      // Act
+    it('does not poll for completed reviews', async () => {
+      document.body.innerHTML = `<div>${createReviewElement('123', 'completed')}</div>`
       initStatusPolling()
-      jest.advanceTimersByTime(10000)
-
-      // Assert
+      await jest.runAllTimersAsync()
       expect(fetchMock).not.toHaveBeenCalled()
     })
 
-    it('should poll for pending reviews', async () => {
-      // Setup
-      document.body.innerHTML = `
-        <div>
-          <strong data-review-id="123" class="govuk-tag">Pending</strong>
-        </div>
-      `
+    it('polls and updates pending review status', async () => {
+      document.body.innerHTML = `<div>${createReviewElement('123', 'pending')}</div>`
       fetchMock.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ id: '123', status: 'completed' })
       })
 
-      // Act
+      initStatusPolling()
+      await Promise.resolve()
+      await jest.advanceTimersByTimeAsync(0)
+
+      const element = document.querySelector('[data-review-id]')
+      expect(fetchMock).toHaveBeenCalledWith('/api/code-reviews/123/status')
+      expect(element.textContent).toBe('Completed')
+      expect(element.className).toContain('govuk-tag--green')
+    })
+
+    it('continues polling until review is completed', async () => {
+      document.body.innerHTML = `<div>${createReviewElement('123', 'pending')}</div>`
+
+      fetchMock
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ id: '123', status: 'in progress' })
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ id: '123', status: 'completed' })
+        })
+
       initStatusPolling()
 
-      // Let all microtasks and timers complete
+      // Initial check: pending -> in progress
       await Promise.resolve()
-      await jest.runAllTimersAsync()
-      await Promise.resolve()
+      await jest.advanceTimersByTimeAsync(0)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      expect(document.querySelector('[data-review-id]').textContent).toBe(
+        'In progress'
+      )
 
-      // Assert
-      expect(fetchMock).toHaveBeenCalledWith('/api/code-reviews/123/status')
+      // Second check: in progress -> completed
+      await jest.advanceTimersByTimeAsync(10000)
+      expect(fetchMock).toHaveBeenCalledTimes(2)
       expect(document.querySelector('[data-review-id]').textContent).toBe(
         'Completed'
       )
-      expect(document.querySelector('[data-review-id]').className).toContain(
-        'govuk-tag--green'
-      )
+
+      // Verify polling stops
+      await jest.advanceTimersByTimeAsync(10000)
+      expect(fetchMock).toHaveBeenCalledTimes(2)
     })
 
-    it('should poll for in progress reviews', async () => {
-      // Setup
+    it('handles multiple reviews with different statuses', async () => {
       document.body.innerHTML = `
         <div>
-          <strong data-review-id="123" class="govuk-tag">In Progress</strong>
+          ${createReviewElement('123', 'pending')}
+          ${createReviewElement('456', 'in progress')}
+          ${createReviewElement('789', 'completed')}
         </div>
       `
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ id: '123', status: 'failed' })
-      })
 
-      // Act
+      fetchMock
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ id: '123', status: 'completed' })
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ id: '456', status: 'in progress' })
+        })
+
       initStatusPolling()
-
-      // Let all microtasks and timers complete
       await Promise.resolve()
-      await jest.runAllTimersAsync()
-      await Promise.resolve()
+      await jest.advanceTimersByTimeAsync(0)
 
-      // Assert
+      const elements = document.querySelectorAll('[data-review-id]')
+      expect(fetchMock).toHaveBeenCalledTimes(2)
       expect(fetchMock).toHaveBeenCalledWith('/api/code-reviews/123/status')
-      expect(document.querySelector('[data-review-id]').textContent).toBe(
-        'Failed'
-      )
-      expect(document.querySelector('[data-review-id]').className).toContain(
-        'govuk-tag--red'
-      )
+      expect(fetchMock).toHaveBeenCalledWith('/api/code-reviews/456/status')
+      expect([...elements].map((el) => el.textContent)).toEqual([
+        'Completed',
+        'In progress',
+        'Completed'
+      ])
     })
 
-    it('should handle API errors silently', async () => {
-      // Setup
-      document.body.innerHTML = `
-        <div>
-          <strong data-review-id="123" data-status="Pending">Pending</strong>
-        </div>
-      `
-      global.fetch = jest.fn(() => Promise.reject(new Error('API Error')))
+    it('continues polling on API error', async () => {
+      document.body.innerHTML = `<div>${createReviewElement('123', 'pending')}</div>`
 
-      // Act
-      initStatusPolling()
-      await jest.advanceTimersByTime(5000)
-
-      // Assert
-      expect(document.querySelector('strong').textContent).toBe('Pending')
-      expect(global.fetch).toHaveBeenCalledTimes(1)
-    }, 15000)
-
-    it('should stop polling when no more in-progress reviews exist', async () => {
-      // Setup
-      document.body.innerHTML = `
-        <div>
-          <strong data-review-id="123" class="govuk-tag">Pending</strong>
-        </div>
-      `
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ id: '123', status: 'completed' })
-      })
-
-      // Act
-      initStatusPolling()
-
-      // Let all microtasks and timers complete
-      await Promise.resolve()
-      await jest.runAllTimersAsync()
-      await Promise.resolve()
-
-      // Advance time and check no more calls
-      jest.advanceTimersByTime(10000)
-      await Promise.resolve()
-
-      // Assert
-      expect(fetchMock).toHaveBeenCalledTimes(1) // Should not poll again after completion
-    })
-
-    it('should continue polling on API errors', async () => {
-      // Setup
-      document.body.innerHTML = `
-        <div>
-          <strong data-review-id="123" class="govuk-tag">Pending</strong>
-        </div>
-      `
       fetchMock
         .mockRejectedValueOnce(new Error('API Error'))
         .mockResolvedValueOnce({
@@ -308,54 +236,49 @@ describe('Code Review Status', () => {
           json: () => Promise.resolve({ id: '123', status: 'completed' })
         })
 
-      // Act
       initStatusPolling()
 
-      // Let first error complete
+      // First check fails
       await Promise.resolve()
-      await jest.runAllTimersAsync()
-      await Promise.resolve()
+      await jest.advanceTimersByTimeAsync(0)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      expect(document.querySelector('[data-review-id]').textContent).toBe(
+        'Pending'
+      )
 
-      // Let second check complete
-      jest.advanceTimersByTime(10000)
-      await Promise.resolve()
-      await jest.runAllTimersAsync()
-      await Promise.resolve()
-
-      // Assert
+      // Second check succeeds
+      await jest.advanceTimersByTimeAsync(10000)
       expect(fetchMock).toHaveBeenCalledTimes(2)
       expect(document.querySelector('[data-review-id]').textContent).toBe(
         'Completed'
       )
     })
 
-    it('should poll for started reviews', async () => {
-      // Setup
-      document.body.innerHTML = `
-        <div>
-          <strong data-review-id="123" class="govuk-tag">Started</strong>
-        </div>
-      `
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ id: '123', status: 'completed' })
-      })
+    it('continues polling on non-ok API response', async () => {
+      document.body.innerHTML = `<div>${createReviewElement('123', 'pending')}</div>`
 
-      // Act
+      fetchMock
+        .mockResolvedValueOnce({ ok: false, status: 500 })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ id: '123', status: 'completed' })
+        })
+
       initStatusPolling()
 
-      // Let all microtasks and timers complete
+      // First check returns error
       await Promise.resolve()
-      await jest.runAllTimersAsync()
-      await Promise.resolve()
+      await jest.advanceTimersByTimeAsync(0)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      expect(document.querySelector('[data-review-id]').textContent).toBe(
+        'Pending'
+      )
 
-      // Assert
-      expect(fetchMock).toHaveBeenCalledWith('/api/code-reviews/123/status')
+      // Second check succeeds
+      await jest.advanceTimersByTimeAsync(10000)
+      expect(fetchMock).toHaveBeenCalledTimes(2)
       expect(document.querySelector('[data-review-id]').textContent).toBe(
         'Completed'
-      )
-      expect(document.querySelector('[data-review-id]').className).toContain(
-        'govuk-tag--green'
       )
     })
   })
