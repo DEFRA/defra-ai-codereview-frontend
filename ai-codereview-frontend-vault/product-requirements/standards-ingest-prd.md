@@ -214,20 +214,19 @@ Python, C#, Node.js, JavaScript, Java, .NET
 ### 6.1 Navigation
 * **Manage standards**:  New item linking to `/standards`
 
-### 6.1 Standards Landing Page
+### 6.2 Standards Landing Page
 * A standards landing page that contains links to: 
-* ** Manage classifications**: text linking to `/standards/classifications`
+* **Manage classifications**: text linking to `/standards/classifications`
 * **Manage standards**: text linking to `/standards/standard-sets`
 
-### 6.2 Classification Manager Pages
+### 6.3 Classification Manager Pages
 * **Manage Classifications Page (`/standards/classifications`)**
   * Display a **table** of all classifications - calls API`GET /api/v1/classifications`
   * **Delete Classification** button for each row of the table - calls API DELETE to `/api/v1/classifications/{id}`
   * **Add Classification** form - calls API POST to `/api/v1/classifications`
   * Display **warning** about re-ingestion for changes in classifications
 
-### 6.3 Standards Sets Management
-
+### 6.4 Standards Sets Management
 1. **Manage Standards Page (`/standards/standard-sets`)**
    * Display a **table** of all standard-sets (calls API `GET /api/v1/standard-sets`)
      * Columns: Standard-Set Name, Repository URL (opens in new tab), Delete button
@@ -252,14 +251,14 @@ Python, C#, Node.js, JavaScript, Java, .NET
        * Repository Path (opens in new tab if relevant)
        * Classifications 
 
-### 6.4 Standards Submission Updates
+### 6.5 Standards Submission Updates
 * **Standard-Sets Checkbox List**
   * The values are dynamically generated, using the fetched from `GET /api/v1/standard-sets`
   * The user can select one or more sets to include in their code review request
   * The form then sends an array of standard-set IDs with `repository_url` to API `POST /api/v1/code-reviews`
   * Add a 'check all' link that checks all the standard-sets to be included in the code review
 
-### 6.5 Code Review Record Detail Page Updates
+### 6.6 Code Review Record Detail Page Updates
 * **Reports Array**
   * Each code review can now have multiple standard-set reports
   * Populate the existing **tabbed interface** dynamically using the new `standard_sets array` from the existing API `GET /api/v1/code-reviews/${id}`
