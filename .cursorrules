@@ -180,7 +180,7 @@ Key directories and their purposes:
 
 ### Commit Guidelines
 - Use lowercase for messages
-- Keep the summary line concise
+- Limit the commit message to one line, and no more than two concise, descriptive sentences
 - Reference issue numbers when applicable
 
 ## Documentation

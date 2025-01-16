@@ -32,6 +32,7 @@
             <td class="govuk-table__cell">
               <strong class="govuk-tag {% if review.status == 'failed' %}govuk-tag--red{% elif review.status == 'completed' %}govuk-tag--green{% endif %}"
                       role="status"
+                      data-review-id="{{ review._id }}"
                       aria-label="Review status: {{ review.status | replace("_", " ") | title }}">
                 {{ review.status | replace("_", " ") | title }}
               </strong>

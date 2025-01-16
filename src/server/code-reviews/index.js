@@ -1,4 +1,8 @@
-import { getCodeReviews, getCodeReviewById } from './controller.js'
+import {
+  getCodeReviews,
+  getCodeReviewById,
+  getCodeReviewStatus
+} from './controller.js'
 
 /**
  * @satisfies {ServerRegisterPluginObject<void>}
@@ -25,6 +29,16 @@ export const codeReviews = {
           options: {
             auth: false,
             description: 'Code review detail page',
+            tags: ['api', 'code-reviews']
+          }
+        },
+        {
+          method: 'GET',
+          path: '/api/code-reviews/{id}/status',
+          handler: getCodeReviewStatus,
+          options: {
+            auth: false,
+            description: 'Get code review status',
             tags: ['api', 'code-reviews']
           }
         }

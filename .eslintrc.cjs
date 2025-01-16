@@ -2,7 +2,12 @@
  * @type {ESLint.ConfigData}
  */
 module.exports = {
-  ignorePatterns: ['.server', '.public', 'coverage'],
+  ignorePatterns: [
+    '.server',
+    '.public',
+    'coverage',
+    'src/client/javascripts/code-review-status.test.js'
+  ],
   overrides: [
     {
       extends: [

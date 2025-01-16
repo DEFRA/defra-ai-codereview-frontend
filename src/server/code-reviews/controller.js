@@ -150,3 +150,30 @@ export async function getCodeReviewById(request, h) {
     })
   }
 }
+
+/**
+ * Handler for fetching a code review's status
+ */
+export async function getCodeReviewStatus(request, h) {
+  try {
+    const { id } = request.params
+    const response = await fetch(
+      `${config.get('apiBaseUrl')}/api/v1/code-reviews/${id}`
+    )
+
+    if (!response.ok) {
+      return h
+        .response({ error: 'Failed to fetch review status' })
+        .code(response.status)
+    }
+
+    const review = await response.json()
+    return h.response({
+      id: review._id,
+      status: review.status
+    })
+  } catch (err) {
+    request.logger.error('Error fetching code review status:', err)
+    return h.response({ error: 'Internal server error' }).code(500)
+  }
+}
