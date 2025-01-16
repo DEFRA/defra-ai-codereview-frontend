@@ -2,12 +2,9 @@
  * @jest-environment jsdom
  */
 
-import {
-  initStatusPolling,
-  updateStatusElement,
-  fetchReviewStatus,
-  needsPolling
-} from './code-review-status.js'
+import { initStatusPolling, __testing__ } from './code-review-status.js'
+
+const { updateStatusElement, fetchReviewStatus, needsPolling } = __testing__
 
 describe('Code Review Status', () => {
   let fetchMock

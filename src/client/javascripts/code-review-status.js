@@ -9,7 +9,7 @@
  * @param {HTMLElement} statusElement - The status tag element to update
  * @param {string} newStatus - The new status value
  */
-export function updateStatusElement(statusElement, newStatus) {
+function updateStatusElement(statusElement, newStatus) {
   const formattedStatus = newStatus.replace('_', ' ')
   const titleStatus =
     formattedStatus.charAt(0).toUpperCase() + formattedStatus.slice(1)
@@ -33,7 +33,7 @@ export function updateStatusElement(statusElement, newStatus) {
  * @param {string} reviewId - The ID of the review to check
  * @returns {Promise<CodeReviewStatus>}
  */
-export async function fetchReviewStatus(reviewId) {
+async function fetchReviewStatus(reviewId) {
   const response = await fetch(`/api/code-reviews/${reviewId}/status`)
   if (!response.ok) {
     throw new Error(
@@ -48,7 +48,7 @@ export async function fetchReviewStatus(reviewId) {
  * @param {string} status - The status to check
  * @returns {boolean} - Whether the status needs polling
  */
-export function needsPolling(status) {
+function needsPolling(status) {
   const pollStatuses = ['pending', 'in progress', 'started']
   return pollStatuses.includes(status.toLowerCase().trim())
 }
@@ -100,4 +100,11 @@ export function initStatusPolling() {
   checkStatuses().catch(() => {
     // Error handling is done silently
   })
+}
+
+// Export internal functions only for testing
+export const __testing__ = {
+  updateStatusElement,
+  fetchReviewStatus,
+  needsPolling
 }
