@@ -215,5 +215,35 @@ describe('Code Review Status', () => {
         'Completed'
       )
     })
+
+    it('should poll for started reviews', async () => {
+      // Setup
+      document.body.innerHTML = `
+        <div>
+          <strong data-review-id="123" class="govuk-tag">Started</strong>
+        </div>
+      `
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ id: '123', status: 'completed' })
+      })
+
+      // Act
+      initStatusPolling()
+
+      // Let all microtasks and timers complete
+      await Promise.resolve()
+      await jest.runAllTimersAsync()
+      await Promise.resolve()
+
+      // Assert
+      expect(fetchMock).toHaveBeenCalledWith('/api/code-reviews/123/status')
+      expect(document.querySelector('[data-review-id]').textContent).toBe(
+        'Completed'
+      )
+      expect(document.querySelector('[data-review-id]').className).toContain(
+        'govuk-tag--green'
+      )
+    })
   })
 })

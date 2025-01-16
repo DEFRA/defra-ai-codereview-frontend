@@ -54,7 +54,11 @@ export function initStatusPolling() {
     for (const element of statusElements) {
       const currentStatus = element.textContent.toLowerCase().trim()
 
-      if (currentStatus === 'pending' || currentStatus === 'in progress') {
+      if (
+        currentStatus === 'pending' ||
+        currentStatus === 'in progress' ||
+        currentStatus === 'started'
+      ) {
         hasInProgressReviews = true
         try {
           const reviewId = element.getAttribute('data-review-id')
