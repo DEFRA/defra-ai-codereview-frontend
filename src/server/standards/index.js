@@ -4,6 +4,12 @@ import {
   createClassification,
   deleteClassification
 } from './classifications/controller.js'
+import {
+  getStandardSets,
+  showCreateStandardSet,
+  createStandardSet,
+  deleteStandardSet
+} from './standard-sets/controller.js'
 
 /**
  * Standards plugin
@@ -45,12 +51,52 @@ export const standards = {
           }
         },
         {
-          method: 'DELETE',
-          path: '/standards/classifications/{id}',
+          method: 'POST',
+          path: '/standards/classifications/{id}/delete',
           handler: deleteClassification,
           options: {
             auth: false,
             description: 'Delete a classification',
+            tags: ['api', 'standards']
+          }
+        },
+        {
+          method: 'GET',
+          path: '/standards/standard-sets',
+          handler: getStandardSets,
+          options: {
+            auth: false,
+            description: 'Standard sets management page',
+            tags: ['api', 'standards']
+          }
+        },
+        {
+          method: 'GET',
+          path: '/standards/standard-sets/create',
+          handler: showCreateStandardSet,
+          options: {
+            auth: false,
+            description: 'Show create standard set form',
+            tags: ['api', 'standards']
+          }
+        },
+        {
+          method: 'POST',
+          path: '/standards/standard-sets',
+          handler: createStandardSet,
+          options: {
+            auth: false,
+            description: 'Create a new standard set',
+            tags: ['api', 'standards']
+          }
+        },
+        {
+          method: 'POST',
+          path: '/standards/standard-sets/{id}/delete',
+          handler: deleteStandardSet,
+          options: {
+            auth: false,
+            description: 'Delete a standard set',
             tags: ['api', 'standards']
           }
         }

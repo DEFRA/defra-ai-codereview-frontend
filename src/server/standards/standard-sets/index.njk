@@ -1,0 +1,50 @@
+{% extends "layouts/page.njk" %}
+
+{% block pageTitle %}
+  Standard Sets - Defra AI Code Review
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-width-container">
+    <main class="govuk-main-wrapper" id="main-content" role="main">
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+          <a href="/standards/standard-sets/create" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+            Add new standard set
+          </a>
+
+          {% if standardSets.length > 0 %}
+            <table class="govuk-table">
+              <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                  <th scope="col" class="govuk-table__header">Name</th>
+                  <th scope="col" class="govuk-table__header">Repository URL</th>
+                  <th scope="col" class="govuk-table__header">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="govuk-table__body">
+                {% for set in standardSets %}
+                  <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">{{ set.name }}</td>
+                    <td class="govuk-table__cell">{{ set.repository_url }}</td>
+                    <td class="govuk-table__cell">
+                      <form method="POST" action="/standards/standard-sets/{{ set._id }}/delete" style="display: inline;">
+                        <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
+                          Delete
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="govuk-body">No standard sets found.</p>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+  </div>
+{% endblock %}
