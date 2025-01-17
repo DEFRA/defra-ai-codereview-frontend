@@ -1,11 +1,12 @@
+import { getStandardsHome } from './controller.js'
 import {
-  getStandardsHome,
   getClassifications,
   createClassification,
   deleteClassification
-} from './controller.js'
+} from './classifications/controller.js'
 
 /**
+ * Standards plugin
  * @satisfies {ServerRegisterPluginObject<void>}
  */
 export const standards = {
@@ -35,7 +36,7 @@ export const standards = {
         },
         {
           method: 'POST',
-          path: '/standards/classifications/create',
+          path: '/standards/classifications',
           handler: createClassification,
           options: {
             auth: false,
@@ -44,8 +45,8 @@ export const standards = {
           }
         },
         {
-          method: 'POST',
-          path: '/standards/classifications/{id}/delete',
+          method: 'DELETE',
+          path: '/standards/classifications/{id}',
           handler: deleteClassification,
           options: {
             auth: false,

@@ -38,7 +38,8 @@
                       <span class="govuk-hint govuk-!-margin-bottom-0 govuk-!-font-size-16">Created {{ classification.created_at | formatDate("dd/MM/yyyy HH:mm") }}</span>
                     </td>
                     <td class="govuk-table__cell">
-                      <form method="POST" action="/standards/classifications/{{ classification._id }}/delete" class="app-delete-classification">
+                      <form method="POST" action="/standards/classifications/{{ classification._id }}" class="app-delete-classification">
+                        <input type="hidden" name="_method" value="DELETE">
                         <div class="govuk-button-group">
                           <button type="submit" 
                                   class="govuk-button govuk-button--warning" 
@@ -67,7 +68,7 @@
 
       <div class="govuk-grid-row govuk-!-margin-top-6">
         <div class="govuk-grid-column-two-thirds">
-          <form method="POST" action="/standards/classifications/create" novalidate>
+          <form method="POST" action="/standards/classifications" novalidate>
             <div class="govuk-form-group">
               <label class="govuk-label" for="name">
                 <h2 class="govuk-heading-m">Add new classification</h2>
