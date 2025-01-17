@@ -8,15 +8,14 @@ kanban-plugin: board
 
 - [ ] review the js cursor rules (large)
 - [ ] update playbook repos cursor rules when done
-- [ ] get status changes (progressive enhancement solution)
 - [ ] how are environment variables done in js projects?
 - [ ] add e2e tests in playwright
 - [ ] future feature: add a download link
-- [ ] change the route after POST to show the list view rather than the report view
 
 
 ## Doing
 
+- [ ] [[standards-ingest-prd]]
 
 
 ## Done
@@ -32,6 +31,7 @@ kanban-plugin: board
 - [x] fixing the api to be async
 - [x] Add the code review output!
 - [x] clean up layout and change the title. maybe copy CDP style?
+- [x] get status changes (progressive enhancement solution)
 
 
 

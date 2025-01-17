@@ -1,0 +1,28 @@
+{% extends "layouts/page.njk" %}
+
+{% block content %}
+  <div class="govuk-width-container">
+    <main class="govuk-main-wrapper" id="main-content" role="main">
+      <h1 class="govuk-heading-l">Standards Management</h1>
+      
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          <nav class="govuk-body" role="navigation" aria-label="Standards management sections">
+            <ul class="govuk-list govuk-list--bullet">
+              <li>
+                <a href="/standards/classifications" class="govuk-link" aria-label="Go to classifications management">
+                  Manage classifications
+                </a>
+              </li>
+              <li>
+                <a href="/standards/standard-sets" class="govuk-link" aria-label="Go to standards management">
+                  Manage standards
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </main>
+  </div>
+{% endblock %}
