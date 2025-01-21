@@ -38,9 +38,10 @@ Currently, the system is configured with a **hard-coded** set of standards.
 * **Rendering**: Nunjucks templating, server-side rendering
 * **Tooling**: Webpack, Babel, TypeScript, Jest, ESLint, Prettier
 * **Current Features**:
-  * A page for submission of code reviews
-  * A page for viewing all previous code views
-  * A page for viewing code view details
+  * A home page for repository submission
+  * Health check endpoints
+  * Error handling pages
+  * Basic routing for future expansion
 
 ## 3. Problem Statement & Goals
 
@@ -76,12 +77,12 @@ Currently, the system is configured with a **hard-coded** set of standards.
 
 4. **Frontend Enhancements**
    * New pages to manage standard sets and classifications
-   * Modified submission page to show multiple standard sets for selection
-   * Modified code review detail pages with tabs for each report by standard set
+   * Modified home page to show multiple standard sets for selection
+   * Code review detail pages that tabulate reports by standard set
 
 ## 5. Detailed Requirements
 
-### 5.1 Classification Manager
+### 5.1 Classification Manager (✅ Feature Completed)
 
 #### 5.1.1 Backend Requirements
 1. **Database Schema**
@@ -115,9 +116,9 @@ Currently, the system is configured with a **hard-coded** set of standards.
 #### 5.1.2 Frontend Requirements
 1. **New Navigation Item**: "Manage Classifications"
 2. **Manage Classifications Page**
-   * **List** all existing classifications (table view) (calls API `GET /api/v1/classifications` on load)
-   * **Add** a new classification (form that calls API `POST /api/v1/classifications`)
-   * **Delete** a classification (action that calls API `DELETE /api/v1/classifications/{id}`)
+   * **List** all existing classifications (table view)
+   * **Add** a new classification (form that calls `POST /api/v1/classifications`)
+   * **Delete** a classification (action that calls `DELETE /api/v1/classifications/{id}`)
    * Show a **warning** message that adding or deleting classifications requires re-ingestion of existing standard sets to update classification relationships
 
 #### 5.1.3 Example Classifications
@@ -125,7 +126,7 @@ Currently, the system is configured with a **hard-coded** set of standards.
 Python, C#, Node.js, JavaScript, Java, .NET
 ```
 
-### 5.2 Standards Ingest
+### 5.2 Standards Ingest (✅ Feature Completed)
 
 #### 5.2.1 Terminology
 * **Code Repository**: The repository to be reviewed
@@ -151,13 +152,16 @@ Python, C#, Node.js, JavaScript, Java, .NET
      * **POST** `/api/v1/standard-sets`
        1. Check if a standard-set with the same `name` exists. If so, delete the existing one and all its associated standards
        2. Create a new standard-set record
-       3. Download the repository from the provided `repository_url` to a temporary folder (note that we already have a `git_repos_agent` that can download a repository)
-       4. Parse each file in the repository using an LLM agent
-       5. For each discovered standard (could be multiple standards within a file), create a new record in the `standards` collection, associating it with the newly created standard-set
-         * Determine relevant classifications from the text (using LLM or other rules)
-         * If no classifications apply, the standard is universal
-       6. Cleanup temporary folder
-       7. Return newly created standard-set with its `_id`
+       3. Immediately return newly created standard-set with its `_id`
+       4. The following steps will be processed async.  (follow the same ' multiprocessing import Process' async approach we used for the /api/v1/code-reviews POST endpoint):
+	       4.1 Download the repository from the provided `repository_url` to a temporary folder (note that we already have a `git_repos_agent` that can download a repository)
+	       4.2 Get the full set of `classifications` from the database to use later during our standard analysis LLM call.
+	       4.3 Loop over each file in the repository and perform the following:
+		       1. Using an Anthropic LLM agent, look for individual standards within the files (could be multiple standards within each file) and determine relevant classifications from the text (classifications can be passed into the prompt from step 2 above)
+		       2. If no classifications apply, the standard is "universal" and can apply to any codebase.
+		       3. Make an assessment if the standard is "universal" or not before considering adding classifications, because if it's "universal", then no classifications are required.
+		       4. For each discovered standard, create a new record in the `standards` collection, associating it with the newly created standard-set
+	       4.4 Cleanup temporary folder where the standard-set repository was downloaded
      * **GET** `/api/v1/standard-sets`
        * Returns a list of standard-set objects (without their associated standards)
      * **GET** `/api/v1/standard-sets/{id}`
@@ -165,11 +169,11 @@ Python, C#, Node.js, JavaScript, Java, .NET
      * **DELETE** `/api/v1/standard-sets/{id}`
        * Deletes the standard-set and all associated standards (and their references to classifications)
 
-### 5.3 Updated Code Review Flow
+## 5.3 Use standard sets in the existing code review flow (✅ Feature Completed)
 
-#### 5.3.1 Required Changes to Existing `/api/v1/code-reviews` Endpoint
+This feature makes changes to the existing POST API  `/api/v1/code-reviews` and its async processing. Instead of downloading standards from a file, read standard sets and standards from the database. 
 
-1. **Request Payload**
+5.3.1. **Request Payload**
    * Must now include an array of standard-set IDs to specify which sets to check against
    ```json
    {
@@ -178,68 +182,63 @@ Python, C#, Node.js, JavaScript, Java, .NET
    }
    ```
 
-2. **Processing**
-   1. Download and merge the code repository (existing functionality)
-   2. Use a new "Standards Selection" LLM agent to determine which classifications match the codebase
-      * Output (example):
-      ```json
-      {
-        "Python": false,
-        "C#": false,
-        "Node.js": true,
-        "JavaScript": true,
-        "Java": false,
-        ".NET": false
-      }
-      ```
-   3. For each `standard_set_id` in `standard_sets`, **query** for all standards in that set whose classifications array is either empty (universal) or is a subset of the `true` classifications from step 2
-   4. Combine these relevant standards with the code repository's merged file and pass them to the existing reporting agent
-   5. Use the `custom_prompt` from the standard-set for the LLM prompt
-   6. Save a separate Markdown report file per standard-set in the format:
-      ```
-      {code-review-record-id}-{standard-set-name}.md
-      ```
-   7. Store references to these new report files in the `code-reviews` record
+5.3.2 **Change existing async processing**
 
-3. **Response & Storage**
-   * When the code review is complete, the `GET /api/v1/code-reviews/{id}` endpoint should provide:
-     * The array of associated standard-sets used in the review
-     * The Markdown reports generated for each standard-set (filename and content)
+Changing the existing async process in the following ways:
+1. Use the standard_sets parameter to get the standard sets from the database
+3. Loop over each standard set and check the repository_url against the standards in each standard set
+4. Save a separate Markdown report file per standard-set in the format: `{code-review-record-id}-{standard-set-name}.md`
+5. Store references to these new report files in the `code-reviews` record. This will be an array with a record for each standard set. 
 
-#### 5.3.2 Existing Functionality to Remove
-* **Remove** hard-coded standards download in the code review flow. Standards are now **persisted** in the database
+## 5.4 **Update GET code-reviews API Response & Storage**  (✅ Feature Completed)
+The `GET /api/v1/code-reviews/{id}` endpoint should be extended to add the array of reports that are generated
 
+Note that the `GET /api/v1/code-reviews` API should remain the same. i.e. this is a different response model now
+
+## 5.5 Add classifications to code review flow
+The feature changes the existing async agentic processing of codebases, adding classifications. This also builds on the functionality in 5.3. 
+
+ This will involve creating a new "Standards Classification" LLM agent to determine which classifications match the codebase, and return a set of matching standards, that is then passed to the existing "Code Reviews" Agent.   
+
+5.5.1 **Processing**
+   1. The  `/api/v1/code-reviews` API will be updated to first invoke the "Standards Classification" agent in its async agentic processing.
+   2. Process Steps for the "Standards Classification" agent:
+	  2.1. Get all classifications from the database to send to the LLM in the next step.
+	  2.2. Create an new Anthropic LLM call to examine the code base and return relevant classifications. Use the classifications gathered in the previous step, step 2.1.
+	  2.3. For each `standard_set_id` in `standard_sets`, query for all standards whose classifications array is either empty i.e. "universal" or contains a match to the classification from the previous step, step 2.2.
+	  2.4. Send the combined list of standards to the "Code Reviews" Agent 
+   3. In the "Code Reviews" Agent perform the following steps:
+	  3.2. Use the list of relevant standards provided by the "Code Reviews" Agent to create a code review. 
+		  Note that this is refactoring the source of a standards, but the rest of the functionality will be the same.
+	
 ## 6. Frontend Requirements
 
-### 6.1 Navigation
-* **Manage standards**:  New item linking to `/standards`
+### 6.1 Navigation (✅ Feature Completed)
+* **Manage classifications**: New item linking to `/classifications`
+* **Manage standards**: New item linking to `/standard-sets`
 
-### 6.2 Standards Landing Page
-* A standards landing page that contains links to: 
-* **Manage classifications**: text linking to `/standards/classifications`
-* **Manage standards**: text linking to `/standards/standard-sets`
-
-### 6.3 Classification Manager Pages
-* **Manage Classifications Page (`/standards/classifications`)**
-  * Display a **table** of all classifications - calls API`GET /api/v1/classifications`
-  * **Delete Classification** button for each row of the table - calls API DELETE to `/api/v1/classifications/{id}`
-  * **Add Classification** form - calls API POST to `/api/v1/classifications`
+### 6.2 Classification Manager Pages (✅ Feature Completed)
+* **Manage Classifications Page (`/classifications`)**
+  * Display a **table** of all classifications from `GET /api/v1/classifications`
+	  * **Delete Classification** button for each row of the table (DELETE to `/api/v1/classifications/{id}`)
+  * **Add Classification** form (POST to `/api/v1/classifications`)
   * Display **warning** about re-ingestion for changes in classifications
 
-### 6.4 Standards Sets Management
-1. **Manage Standards Page (`/standards/standard-sets`)**
-   * Display a **table** of all standard-sets (calls API `GET /api/v1/standard-sets`)
+### 6.3 Standards Management (✅ Feature Completed)
+
+1. **Manage Standards Page (`/standard-sets`)**
+   * Display a **table** of all standard-sets (from `GET /api/v1/standard-sets`)
      * Columns: Standard-Set Name, Repository URL (opens in new tab), Delete button
-     * **Delete** calls API `DELETE /api/v1/standard-sets/{id}`
-   * **Add New Standard-Set** button -> `/standards/standard-sets/new`
+     * **Delete** calls `DELETE /api/v1/standard-sets/{id}`
+   * **Add New Standard-Set** button -> `/standard-sets/new`
 
-2. **Add New Standard-Set Page (`/standards/standard-sets/new`)**
+2. **Add New Standard-Set Page (`/standard-sets/new`)**
    * Form fields: `name`, `repository_url`, `custom_prompt`
-   * On submit, calls API  `POST /api/v1/standard-sets`
-   * If success, **redirect** to `/standards/standard-sets/{id}` (the standards detail page)
+   * On submit, **POST** to `/api/v1/standard-sets`
+   * If success, **redirect** to `/standard-sets/{id}` (the detail page)
 
-3. **Standard Set Detail Page (`/standards/standard-sets/{id}`)**
-   * Call API **GET** `/api/v1/standard-sets/{id}` on page load
+3. **Standard Set Detail Page (`/standard-sets/{id}`)**
+   * Query **GET** `/api/v1/standard-sets/{id}` on page load
    * Show:
      * Standard-Set Name
      * Repository URL (open in new tab)
@@ -249,21 +248,72 @@ Python, C#, Node.js, JavaScript, Java, .NET
        * Standard Text
        * Comma-separated list of classifications
        * Repository Path (opens in new tab if relevant)
-       * Classifications 
 
-### 6.5 Standards Submission Updates
-* **Standard-Sets Checkbox List**
-  * The values are dynamically generated, using the fetched from `GET /api/v1/standard-sets`
-  * The user can select one or more sets to include in their code review request
-  * The form then sends an array of standard-set IDs with `repository_url` to API `POST /api/v1/code-reviews`
-  * Add a 'check all' link that checks all the standard-sets to be included in the code review
+### 6.4 Home Page Updates
+**Standard-Sets Checkbox List**
+**As is:**
+- Currently, there is a "Standards" checkbox list containing one hard coded option "Defra software development standards" and two disabled options called "Another Standard".
 
-### 6.6 Code Review Record Detail Page Updates
-* **Reports Array**
-  * Each code review can now have multiple standard-set reports
-  * Populate the existing **tabbed interface** dynamically using the new `standard_sets array` from the existing API `GET /api/v1/code-reviews/${id}`
-  * Each tab title corresponds to the standard-set name
-  * The content of the tab shows the Markdown reports generated for the corresponding each standard-set
+**To Be:**
+* Change the standard checkbox list, so it will now be dynamically built using data from `GET /api/v1/standard-sets`.  The API payload will return an array of standard-sets including the `name` and `_id` which can be used. 
+
+* This is an example payload from `GET /api/v1/standard-sets`: 
+```json
+[
+  {
+    "name": "Defra software standards",
+    "repository_url": "https://github.com/DEFRA/software-development-standards",
+    "custom_prompt": "",
+    "_id": "678fabd8c8db99c356e74af9",
+    "created_at": "2025-01-21T14:14:48.686000",
+    "updated_at": "2025-01-21T14:14:48.686000"
+  }
+]
+``` 
+  
+* The user will be able select one or more sets to include in their code review. 
+
+* Also add a 'check all' checkbox that checks all the standard-sets to be included in the code review
+
+* When the form is submitted it takes the selected items from the list and puts their standard set ids in an array called `standard_sets` along with `repository_url` into the payload for `POST /api/v1/code-reviews`
+
+
+
+### 6.5 Code Review Record Detail Page Updates
+**Reports Tabs**
+
+**As Is**
+* Currently, there are 3 tabs at the bottom of the page. One with a hard coded value of "Defra Software Development Standards" and two that are disabled with a value of "Another standard"
+
+**To Be**
+  * Dynamically populate the tabs using the result from the API `GET api/v1/code-reviews/{id}`. The API payload will include a `compliance_reports` field which contains an array of objects, with each object including a `file` and a `report`
+  
+  * This is an example payload from `GET api/v1/code-reviews/{id}`
+```json
+{
+  "_id": "678fb3933215e4f9a08091ea",
+  "repository_url": "https://github.com/DEFRA/find-techspike-rag",
+  "status": "completed",
+  "standard_sets": [
+    {
+      "id": "678fb35e3215e4f9a08091e8",
+      "name": "Defra software standards"
+    }
+  ],
+  "compliance_reports": [
+    {
+      "id": "678fb35e3215e4f9a08091e8",
+      "file": "data/codebase/678fb3933215e4f9a08091ea-Defra software standards.md",
+      "report": "Here is a compliance report"
+    }
+  ],
+  "created_at": "2025-01-21T14:47:47.509000",
+  "updated_at": "2025-01-21T14:48:25.316000"
+}
+```
+    
+  * Loop over the array of  `compliance_reports`, and use the `file` to populate the tab title and use `report` to populate the contents
+
 
 ## 7. Data Model & ER Diagram (Conceptual)
 
@@ -286,9 +336,9 @@ Python, C#, Node.js, JavaScript, Java, .NET
 └───────────────────┘
 ```
 
-## 8. Database Schema for Classificationging System Using References
+## 8. Database Schema for Classification System Using References
 
-To implement the classificationging system with references in MongoDB, we'll establish a many-to-many relationship between standards and classifications. This approach ensures data normalization and efficient querying.
+To implement the classification system with references in MongoDB, we'll establish a many-to-many relationship between standards and classifications. This approach ensures data normalization and efficient querying.
 
 ### 8.1 Collections Overview
 
