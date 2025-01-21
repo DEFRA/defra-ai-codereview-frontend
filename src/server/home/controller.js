@@ -19,7 +19,9 @@ function isValidUrl(url) {
 export async function getHome(_request, h) {
   let standardSets = []
   try {
-    const response = await fetch(`${config.get('apiBaseUrl')}/api/v1/standard-sets`)
+    const response = await fetch(
+      `${config.get('apiBaseUrl')}/api/v1/standard-sets`
+    )
 
     if (!response.ok) {
       throw new Error(`API returned ${response.status}`)
@@ -46,7 +48,8 @@ export async function getHome(_request, h) {
  * Handler for POST requests to create a code review
  */
 export async function postHome(request, h) {
-  const { repository_url: repositoryUrl, standard_sets: standardSets = [] } = request.payload
+  const { repository_url: repositoryUrl, standard_sets: standardSets = [] } =
+    request.payload
 
   // Validate input
   if (!repositoryUrl) {
