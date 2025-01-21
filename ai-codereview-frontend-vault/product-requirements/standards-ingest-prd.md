@@ -287,7 +287,6 @@ The feature changes the existing async agentic processing of codebases, adding c
 
 **To Be**
   * Dynamically populate the tabs using the result from the API `GET api/v1/code-reviews/{id}`. The API payload will include a `compliance_reports` field which contains an array of objects, with each object including a `file` and a `report`
-  
   * This is an example payload from `GET api/v1/code-reviews/{id}`
 ```json
 {
@@ -303,6 +302,7 @@ The feature changes the existing async agentic processing of codebases, adding c
   "compliance_reports": [
     {
       "id": "678fb35e3215e4f9a08091e8",
+      "standard_set_name": "Defra software standards",
       "file": "data/codebase/678fb3933215e4f9a08091ea-Defra software standards.md",
       "report": "Here is a compliance report"
     }
@@ -312,7 +312,9 @@ The feature changes the existing async agentic processing of codebases, adding c
 }
 ```
     
-  * Loop over the array of  `compliance_reports`, and use the `id` to populate the tab title and use `report` to populate the contents
+  * Loop over the array of  `compliance_reports`, and use the `standard_set_name` to populate the tab title and use `report` to populate the contents
+  * Follow the GDS standards for Tabs (https://design-system.service.gov.uk/components/tabs/)
+  * A user should be able to click the tab and have the contents of the report be displayed
 
 
 ## 7. Data Model & ER Diagram (Conceptual)
