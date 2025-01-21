@@ -2,11 +2,12 @@ import inert from '@hapi/inert'
 
 import { health } from '~/src/server/health/index.js'
 import { home } from '~/src/server/home/index.js'
-import { serveStaticFiles } from '~/src/server/common/helpers/serve-static-files.js'
 import { codeReviews } from '~/src/server/code-reviews/index.js'
 import { standards } from '~/src/server/standards/index.js'
+import { serveStaticFiles } from '~/src/server/common/helpers/serve-static-files.js'
 
 /**
+ * Router plugin
  * @satisfies {ServerRegisterPluginObject<void>}
  */
 export const router = {

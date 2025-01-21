@@ -1,11 +1,18 @@
+import { getStandardsHome } from './controller.js'
 import {
-  getStandardsHome,
   getClassifications,
   createClassification,
   deleteClassification
-} from './controller.js'
+} from './classifications/controller.js'
+import {
+  getStandardSets,
+  showCreateStandardSet,
+  createStandardSet,
+  deleteStandardSet
+} from './standard-sets/controller.js'
 
 /**
+ * Standards plugin
  * @satisfies {ServerRegisterPluginObject<void>}
  */
 export const standards = {
@@ -35,7 +42,7 @@ export const standards = {
         },
         {
           method: 'POST',
-          path: '/standards/classifications/create',
+          path: '/standards/classifications',
           handler: createClassification,
           options: {
             auth: false,
@@ -50,6 +57,46 @@ export const standards = {
           options: {
             auth: false,
             description: 'Delete a classification',
+            tags: ['api', 'standards']
+          }
+        },
+        {
+          method: 'GET',
+          path: '/standards/standard-sets',
+          handler: getStandardSets,
+          options: {
+            auth: false,
+            description: 'Standard sets management page',
+            tags: ['api', 'standards']
+          }
+        },
+        {
+          method: 'GET',
+          path: '/standards/standard-sets/create',
+          handler: showCreateStandardSet,
+          options: {
+            auth: false,
+            description: 'Show create standard set form',
+            tags: ['api', 'standards']
+          }
+        },
+        {
+          method: 'POST',
+          path: '/standards/standard-sets',
+          handler: createStandardSet,
+          options: {
+            auth: false,
+            description: 'Create a new standard set',
+            tags: ['api', 'standards']
+          }
+        },
+        {
+          method: 'POST',
+          path: '/standards/standard-sets/{id}/delete',
+          handler: deleteStandardSet,
+          options: {
+            auth: false,
+            description: 'Delete a standard set',
             tags: ['api', 'standards']
           }
         }
