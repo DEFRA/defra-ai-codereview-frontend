@@ -30,38 +30,31 @@
       autocomplete: "url",
       spellcheck: false,
       classes: "govuk-!-width-two-thirds",
-      errorMessage: errors.repositoryUrl,
-      value: values.repositoryUrl
+      errorMessage: (errors.repositoryUrl if errors else null) if errors else null,
+      value: (values.repositoryUrl if values else '') if values else ''
     }) }}
 
+    {% set standardSetItems = [] %}
+    {% for set in standardSets | default([]) %}
+      {% set standardSetItems = standardSetItems.concat([{
+        value: set._id,
+        text: set.name,
+        checked: false,
+        hint: {
+          html: 'View the <a class="govuk-link" href="' + set.repository_url + '" target="_blank" rel="noopener noreferrer">' + set.name + ' (opens in new tab)</a>'
+        }
+      }]) %}
+    {% endfor %}
+
     {{ govukCheckboxes({
-      name: "standards",
+      name: "standard_sets",
       fieldset: {
         legend: {
           text: "Standards",
           classes: "govuk-fieldset__legend--m"
         }
       },
-      items: [
-        {
-          value: "defra",
-          text: "Defra software development standards",
-          checked: true,
-          hint: {
-            html: 'View the <a class="govuk-link" href="https://github.com/DEFRA/software-development-standards" target="_blank" rel="noopener noreferrer">Defra software development standards (opens in new tab)</a>'
-          }
-        },
-        {
-          value: "standard2",
-          text: "Another standard",
-          disabled: true
-        },
-        {
-          value: "standard3", 
-          text: "Another standard",
-          disabled: true
-        }
-      ]
+      items: standardSetItems
     }) }}
 
     {{ govukButton({

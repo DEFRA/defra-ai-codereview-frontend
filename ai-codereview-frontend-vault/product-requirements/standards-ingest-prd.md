@@ -249,7 +249,7 @@ The feature changes the existing async agentic processing of codebases, adding c
        * Comma-separated list of classifications
        * Repository Path (opens in new tab if relevant)
 
-### 6.4 Home Page Updates
+### 6.4 Home Page Updates (✅ Feature Completed)
 **Standard-Sets Checkbox List**
 **As is:**
 - Currently, there is a "Standards" checkbox list containing one hard coded option "Defra software development standards" and two disabled options called "Another Standard".
@@ -278,17 +278,19 @@ The feature changes the existing async agentic processing of codebases, adding c
 * When the form is submitted it takes the selected items from the list and puts their standard set ids in an array called `standard_sets` along with `repository_url` into the payload for `POST /api/v1/code-reviews`
 
 
-
+**Read the entirity of @standards-ingest-prd.md to understand the context of the feature set we are wanting to implement. Current I want to implement Section 6.5 Code Review Record Detail Page Updates only. Do not add features from any other section. Think step by step and make a plan of action before implementing this feature.**
 ### 6.5 Code Review Record Detail Page Updates
 **Reports Tabs**
 
-**As Is**
-* Currently, there are 3 tabs at the bottom of the page. One with a hard coded value of "Defra Software Development Standards" and two that are disabled with a value of "Another standard"
-
-**To Be**
-  * Dynamically populate the tabs using the result from the API `GET api/v1/code-reviews/{id}`. The API payload will include a `compliance_reports` field which contains an array of objects, with each object including a `file` and a `report`
-  
-  * This is an example payload from `GET api/v1/code-reviews/{id}`
+Add Tabs to the bottom of the page displaying each of the compliance reports. 
+- Follow the GDS standards for Tabs (https://design-system.service.gov.uk/components/tabs/).
+- Dynamically populate the tabs using the result from the API `GET api/v1/code-reviews/{id}`. The API payload will include a `compliance_reports` field which contains an array of objects, with each object including a `standard_set_name` field and a `report` field
+- Loop over the array of  `compliance_reports`. 
+	- Create a tab for each `compliance_report`
+	- Populate the tab header with the `standard_set_name`
+	- Populate the tab body with the `report`
+	- Populate the tab id with the `id` 
+- This is an example payload from `GET api/v1/code-reviews/{id}`
 ```json
 {
   "_id": "678fb3933215e4f9a08091ea",
@@ -303,6 +305,7 @@ The feature changes the existing async agentic processing of codebases, adding c
   "compliance_reports": [
     {
       "id": "678fb35e3215e4f9a08091e8",
+      "standard_set_name": "Defra software standards",
       "file": "data/codebase/678fb3933215e4f9a08091ea-Defra software standards.md",
       "report": "Here is a compliance report"
     }
@@ -311,8 +314,7 @@ The feature changes the existing async agentic processing of codebases, adding c
   "updated_at": "2025-01-21T14:48:25.316000"
 }
 ```
-    
-  * Loop over the array of  `compliance_reports`, and use the `file` to populate the tab title and use `report` to populate the contents
+
 
 
 ## 7. Data Model & ER Diagram (Conceptual)
