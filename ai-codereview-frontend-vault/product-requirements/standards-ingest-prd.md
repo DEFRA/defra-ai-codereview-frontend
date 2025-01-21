@@ -249,7 +249,7 @@ The feature changes the existing async agentic processing of codebases, adding c
        * Comma-separated list of classifications
        * Repository Path (opens in new tab if relevant)
 
-### 6.4 Home Page Updates
+### 6.4 Home Page Updates (✅ Feature Completed)
 **Standard-Sets Checkbox List**
 **As is:**
 - Currently, there is a "Standards" checkbox list containing one hard coded option "Defra software development standards" and two disabled options called "Another Standard".
@@ -312,7 +312,7 @@ The feature changes the existing async agentic processing of codebases, adding c
 }
 ```
     
-  * Loop over the array of  `compliance_reports`, and use the `file` to populate the tab title and use `report` to populate the contents
+  * Loop over the array of  `compliance_reports`, and use the `id` to populate the tab title and use `report` to populate the contents
 
 
 ## 7. Data Model & ER Diagram (Conceptual)
