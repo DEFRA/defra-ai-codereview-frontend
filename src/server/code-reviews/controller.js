@@ -125,19 +125,21 @@ export async function getCodeReviewById(request, h) {
 
     const review = await response.json()
 
-    // Convert markdown to HTML safely
-    const reportHtml = review.compliance_report
-      ? marked(review.compliance_report, { sanitize: true })
-      : '<p class="govuk-body">No report available yet.</p>'
+    // Format dates
+    review.created_at = formatDate(review.created_at)
+    review.updated_at = formatDate(review.updated_at)
+
+    // Format compliance reports with markdown
+    if (review.compliance_reports && review.compliance_reports.length > 0) {
+      review.compliance_reports = review.compliance_reports.map((report) => ({
+        ...report,
+        report: marked(report.report)
+      }))
+    }
 
     return h.view('code-reviews/detail', {
       pageTitle: 'Code Review Details',
-      review: {
-        ...review,
-        created_at: formatDate(review.created_at),
-        updated_at: formatDate(review.updated_at),
-        reportHtml
-      }
+      review
     })
   } catch (err) {
     request.logger.error('Error fetching code review:', err)
