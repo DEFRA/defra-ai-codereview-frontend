@@ -62,42 +62,25 @@
       ]
     }) }}
 
-    {{ govukTabs({
-      id: "review-tabs",
-      title: "Code Review Reports",
-      ariaLabel: "Code review report sections",
-      items: [
-        {
-          label: "Defra software development standards",
-          id: "defra-dev-standards",
+    {% if review.compliance_reports and review.compliance_reports | length > 0 %}
+      {% set tabItems = [] %}
+      {% for report in review.compliance_reports %}
+        {% set _ = tabItems.push({
+          label: report.standard_set_name,
+          id: "compliance-report-" + loop.index,
           panel: {
-            html: review.reportHtml
+            html: '<div class="govuk-body">' + report.report | safe + '</div>'
           }
-        },
-        {
-          label: "Another standard",
-          id: "another-standard-1",
-          disabled: true,
-          classes: "govuk-tabs__list-item--no-hover",
-          attributes: {
-            "tabindex": "-1",
-            "aria-disabled": "true",
-            "style": "pointer-events: none; color: #505a5f; text-decoration: none;"
-          }
-        },
-        {
-          label: "Another standard",
-          id: "another-standard-2",
-          disabled: true,
-          classes: "govuk-tabs__list-item--no-hover",
-          attributes: {
-            "tabindex": "-1",
-            "aria-disabled": "true",
-            "style": "pointer-events: none; color: #505a5f; text-decoration: none;"
-          }
-        }
-      ]
-    }) }}
+        }) %}
+      {% endfor %}
+
+      {{ govukTabs({
+        idPrefix: "compliance-reports",
+        items: tabItems
+      }) }}
+    {% else %}
+      <p class="govuk-body">No compliance reports available yet.</p>
+    {% endif %}
   {% else %}
     <p class="govuk-body" role="alert">Code review not found.</p>
   {% endif %}
@@ -105,4 +88,4 @@
   <p class="govuk-body">
     <a href="/code-reviews" class="govuk-link" aria-label="Return to code reviews list">Back to code reviews</a>
   </p>
-{% endblock %} 
+{% endblock %}
