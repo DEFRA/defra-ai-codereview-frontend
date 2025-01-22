@@ -6,9 +6,10 @@ kanban-plugin: board
 
 ## To Do
 
+- [ ] improve tests and test coverage
+- [ ] refactor
 - [ ] review the js cursor rules (large)
 - [ ] update playbook repos cursor rules when done
-- [ ] how are environment variables done in js projects?
 - [ ] add e2e tests in playwright
 - [ ] future feature: add a download link
 
