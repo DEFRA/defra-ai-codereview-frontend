@@ -277,8 +277,6 @@ The feature changes the existing async agentic processing of codebases, adding c
 
 * When the form is submitted it takes the selected items from the list and puts their standard set ids in an array called `standard_sets` along with `repository_url` into the payload for `POST /api/v1/code-reviews`
 
-
-**Read the entirity of @standards-ingest-prd.md to understand the context of the feature set we are wanting to implement. Current I want to implement Section 6.5 Code Review Record Detail Page Updates only. Do not add features from any other section. Think step by step and make a plan of action before implementing this feature.**
 ### 6.5 Code Review Record Detail Page Updates
 **Reports Tabs**
 
