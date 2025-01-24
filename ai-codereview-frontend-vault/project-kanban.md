@@ -4,24 +4,31 @@ kanban-plugin: board
 
 ---
 
-## To Do
+## Backlog
 
-- [ ] improve tests and test coverage
-- [ ] refactor
-- [ ] review the js cursor rules (large)
-- [ ] update playbook repos cursor rules when done
+- [ ] Add tools feature - once we have endpoint from Andrew Rea
 - [ ] add e2e tests in playwright
 - [ ] future feature: add a download link
 
 
+## To Do
+
+- [ ] Bug - can't select 1 standard, need to select multiple
+- [ ] improve tests and test coverage
+- [ ] refactor
+- [ ] review the js cursor rules (large)
+- [ ] update playbook repos cursor rules when done
+- [ ] CDP-style Interface
+
+
 ## Doing
 
-- [ ] [[standards-ingest-prd]]
 
 
 ## Done
 
 **Complete**
+- [x] [[standards-ingest-prd]]
 - [x] API changes
 	Table ordering - latest first
 	
@@ -39,6 +46,6 @@ kanban-plugin: board
 
 %% kanban:settings
 ```
-{"kanban-plugin":"board","list-collapse":[false,false,false]}
+{"kanban-plugin":"board","list-collapse":[false,false,false,false]}
 ```
 %%
