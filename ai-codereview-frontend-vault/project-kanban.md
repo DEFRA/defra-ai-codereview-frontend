@@ -19,6 +19,7 @@ kanban-plugin: board
 - [ ] review the js cursor rules (large)
 - [ ] update playbook repos cursor rules when done
 - [ ] CDP-style Interface
+- [ ] Update Docs in code checker tool
 
 
 ## Doing
