@@ -13,10 +13,8 @@ kanban-plugin: board
 
 ## To Do
 
-- [ ] Bug - can't select 1 standard, need to select multiple
 - [ ] improve tests and test coverage
 - [ ] refactor
-- [ ] review the js cursor rules (large)
 - [ ] update playbook repos cursor rules when done
 - [ ] CDP-style Interface
 - [ ] Update Docs in code checker tool
@@ -24,6 +22,8 @@ kanban-plugin: board
 
 ## Doing
 
+- [ ] review the js cursor rules (large)
+- [ ] Bug - can't select 1 standard, need to select multiple
 
 
 ## Done
