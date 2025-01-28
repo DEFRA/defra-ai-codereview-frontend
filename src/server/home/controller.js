@@ -48,8 +48,14 @@ export async function getHome(_request, h) {
  * Handler for POST requests to create a code review
  */
 export async function postHome(request, h) {
-  const { repository_url: repositoryUrl, standard_sets: standardSets = [] } =
+  const { repository_url: repositoryUrl, standard_sets: rawStandardSets } =
     request.payload
+  // Ensure standard_sets is always an array
+  const standardSets = Array.isArray(rawStandardSets)
+    ? rawStandardSets
+    : rawStandardSets
+      ? [rawStandardSets]
+      : []
 
   // Validate input
   if (!repositoryUrl) {

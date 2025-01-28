@@ -77,6 +77,22 @@ describe('Classifications Controller', () => {
         message: 'Unable to fetch classifications. Please try again later.'
       })
     })
+
+    it('should handle non-ok response', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 500
+      })
+
+      await getClassifications(mockRequest, mockH)
+
+      expect(mockRequest.logger.error).toHaveBeenCalled()
+      expect(mockH.view).toHaveBeenCalledWith('error/index', {
+        statusCode: 500,
+        title: 'Internal Server Error',
+        message: 'Unable to fetch classifications. Please try again later.'
+      })
+    })
   })
 
   describe('createClassification', () => {
@@ -123,6 +139,46 @@ describe('Classifications Controller', () => {
       )
       expect(mockH.code).toHaveBeenCalledWith(400)
     })
+
+    it('should validate classification name format', async () => {
+      mockRequest.payload = { name: 'Invalid@Name$' }
+
+      await createClassification(mockRequest, mockH)
+
+      expect(mockH.view).toHaveBeenCalledWith(
+        'standards/classifications/index',
+        {
+          pageTitle: 'Manage Classifications',
+          navigation: [],
+          errors: {
+            name: {
+              field: 'name',
+              message:
+                'Classification name can only contain letters, numbers, spaces, dots, hyphens and hash symbols'
+            }
+          },
+          data: { name: 'Invalid@Name$' }
+        }
+      )
+      expect(mockH.code).toHaveBeenCalledWith(400)
+    })
+
+    it('should handle non-ok response from API', async () => {
+      mockRequest.payload = { name: 'Test Classification' }
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 500
+      })
+
+      await createClassification(mockRequest, mockH)
+
+      expect(mockRequest.logger.error).toHaveBeenCalled()
+      expect(mockH.view).toHaveBeenCalledWith('error/index', {
+        statusCode: 500,
+        title: 'Internal Server Error',
+        message: 'Unable to create classification. Please try again later.'
+      })
+    })
   })
 
   describe('deleteClassification', () => {
@@ -144,6 +200,22 @@ describe('Classifications Controller', () => {
 
     it('should handle delete errors', async () => {
       fetchSpy.mockRejectedValueOnce(new Error('API Error'))
+
+      await deleteClassification(mockRequest, mockH)
+
+      expect(mockRequest.logger.error).toHaveBeenCalled()
+      expect(mockH.view).toHaveBeenCalledWith('error/index', {
+        statusCode: 500,
+        title: 'Internal Server Error',
+        message: 'Unable to delete classification. Please try again later.'
+      })
+    })
+
+    it('should handle non-ok response from API', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 500
+      })
 
       await deleteClassification(mockRequest, mockH)
 
