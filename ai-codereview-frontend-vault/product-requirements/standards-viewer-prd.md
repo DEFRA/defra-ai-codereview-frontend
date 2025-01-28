@@ -11,7 +11,7 @@ This document outlines the requirements for extending the existing Node.js appli
 
 1. **Create a new page**: `/standards/standard-sets/{id}` that:
    - Fetches data from the backend API.
-   - Displays standard set details (name, repository URL, custom prompt).
+   - Displays standard set details (name, repository URL).
    - Lists the standards belonging to the standard set in a table.
    - Shows classification tags for each standard.
 
@@ -44,9 +44,8 @@ This document outlines the requirements for extending the existing Node.js appli
 
 1. **As a user**, I want to click on a standard set name on the `/standards/standard-sets` page so that I can view detailed information about that standard set on a dedicated page.
 2. **As a user**, I want to see the standard set's repository URL so that I can navigate to the repository for more information.
-3. **As a user**, I want the ability to see the entire text of each standard in an expandable view so that I can review detailed standards content without cluttering the page.
+3. **As a user**, I want the ability to see the entire text of each standard so that I can review detailed standards content.
 4. **As a user**, I want to see relevant classification tags for each standard so that I can quickly identify the categories or types of those standards.
-5. **As a user**, I want to view the custom prompt in a collapsible accordion so that I can optionally access or hide any additional instructions or notes.
 
 ## 5. Functional Requirements
 
@@ -54,7 +53,7 @@ This document outlines the requirements for extending the existing Node.js appli
 
 1. **Page Route**  
    - **Path**: `/standards/standard-sets/{id}`
-   - **Description**: Renders the details of a single standard set.
+   - **Description**: Renders the details of a single standard set. This is a new route that needs adding to the routing
 
 2. **Data Sources**  
    - **Classification Data**:  
@@ -68,21 +67,12 @@ This document outlines the requirements for extending the existing Node.js appli
    - **Title and Repository URL**  
      - Show the standard set's `name`.
      - Show the `repository_url` as a clickable link that opens in a new tab.  
-   - **Custom Prompt**  
-     - Use a GOV.UK accordion component titled "Custom Prompt".
-     - Contents are hidden by default and expanded on click.
-     - Inside the accordion, display the `custom_prompt` string from the API.
    - **Standards Table**  
      - Each row represents one standard from the array `standards` in the response.
      - **Columns**:
-       1. **Repository Path**: 
-          - Display `repository_path`.
-          - Make it clickable to a new page (e.g., `{standard_set_repository_url}{repository_path}`) or a dedicated route as determined by your application's existing patterns.
-       2. **Excerpt**:
+       1. **Standard**:
           - Parse the Markdown text (`text`) into HTML.
-          - Display a short excerpt (e.g., first 100–150 characters or first heading).
-          - Include an expandable/collapsible section (using GOV.UK details or accordion component) to reveal the full text.
-       3. **Classification Tags**:
+       2. **Classifications**:
           - For each `classification_id` in the standard's `classification_ids`, map to the classification name from `/api/v1/classifications`.
           - Display each classification name as a GDS-style tag (e.g., `<strong class="govuk-tag">Classification Name</strong>`).
 
@@ -99,7 +89,7 @@ This document outlines the requirements for extending the existing Node.js appli
   "standards": [
     {
       "_id": "6798e6b6e4a8cc3eb27f0409",
-      "text": "# JavaScript Coding Standards\n\n## 1. **Code Structure**\n- Use meaningful and descriptive names for variables, functions, and classes.\n- Organize code into reusable modules or components.\n- Follow the single responsibility principle (SRP) for functions and classes.\n\n## 2. **Syntax and Formatting**\n- Use camelCase for variable and function names, and PascalCase for class names.\n- Use `const` for constants and `let` for variables that may change; avoid `var`.\n- Prefer template literals (`\\``) over string concatenation for better readability.\n- Use strict equality (`===`) to avoid type coercion.\n\n## 3. **Code Style**\n- Indent using 2 spaces or a tab (be consistent across the project).\n- End statements with semicolons (`;`) for clarity and to avoid ambiguity.\n- Use single quotes (`'`) for strings unless double quotes are required.\n\n## 4. **Error Handling**\n- Use `try...catch` blocks for error-prone operations.\n- Validate inputs and handle edge cases gracefully.\n- Log meaningful error messages for debugging.\n\n## 5. **Comments and Documentation**\n- Write comments to explain the \"why\" of the code, not the \"what.\"\n- Use JSDoc-style comments for functions and complex blocks.\n- Keep comments up-to-date with code changes.\n\n## 6. **Best Practices**\n- Avoid global variables; use closures or modules instead.\n- Write unit tests for critical functions and components.\n- Use linting tools (e.g., ESLint) to enforce coding standards.\n- Minimize the use of inline JavaScript in HTML for better separation of concerns.\n\n## 7. **Version Control**\n- Commit changes with descriptive messages.\n- Follow a branching strategy (e.g., Git Flow) for version control.\n\nFollowing these guidelines ensures that your JavaScript code is maintainable, readable, and scalable.\n",
+      "text": "# JavaScript Coding Standards\n\n## 1. **Code Structure**\n- Use meaningful and descriptive names for variables, functions, and classes.\n- Organize code into reusable modules or components.\n- Follow the single responsibility principle (SRP) for functions and classes.\n",
       "repository_path": "javascript_standards.md",
       "standard_set_id": "6798e6aee5152baa5eb4890a",
       "classification_ids": [
@@ -123,10 +113,9 @@ This document outlines the requirements for extending the existing Node.js appli
 
 1. **GDS Compliance**  
    - Use GOV.UK Frontend components for:
-     - Headings (`govuk-heading-xl`, `govuk-heading-l`, etc.),
-     - Accordion or details element for the custom prompt,
-     - Table styles for the list of standards,
-     - Tags for classification badges.
+     - Headings (`govuk-heading-xl`, `govuk-heading-l`, etc.)
+     - Table styles for the list of standards
+     - Tags for classification badges
 2. **Accessibility**  
    - Provide descriptive link text for "View standard set details" if using screen-reader-only text.
    - Ensure keyboard navigability for accordions and expansions.
@@ -139,8 +128,7 @@ This document outlines the requirements for extending the existing Node.js appli
 1. **Page Load**  
    - When `/standards/standard-sets/{id}` is accessed with a valid ID, the page loads:
      1. The standard set's name, repository URL (clickable).
-     2. An accordion containing the custom prompt.
-     3. A table listing each standard with repository path, excerpt (expandable to full text), and classification tags.
+     3. A table listing each standard with the parsed markdown as HTML and classification tags.
    - When `/standards/standard-sets/{id}` is accessed with an invalid or unknown ID, an appropriate error is displayed.
 
 2. **Classification Tags**  
