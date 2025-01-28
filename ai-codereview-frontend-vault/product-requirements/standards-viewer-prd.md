@@ -12,7 +12,7 @@ This document outlines the requirements for extending the existing Node.js appli
 1. **Create a new page**: `/standards/standard-sets/{id}` that:
    - Fetches data from the backend API.
    - Displays standard set details (name, repository URL).
-   - Lists the standards belonging to the standard set in a table.
+   - Lists the standards belonging to the standard set.
    - Shows classification tags for each standard.
 
 2. **Enhance existing page**: `/standards/standard-sets` to:
@@ -32,24 +32,15 @@ This document outlines the requirements for extending the existing Node.js appli
 ### In Scope:
 - Creating a new page and associated routes for standard set details.
 - Updating an existing page to link to the new page.
-- Displaying classification names using GDS-compliant tags.
-- Adding GOV.UK accordion and table styling to the new page.
 
 ### Out of Scope:
 - Any backend API changes outside of retrieving the existing data endpoints.
 - Revamping the entire site's design (beyond reusing existing GDS-compatible components).
 - Extensive content editing or rewriting—this PRD focuses on layout and functional display.
 
-## 4. User Stories
+## 4. Functional Requirements
 
-1. **As a user**, I want to click on a standard set name on the `/standards/standard-sets` page so that I can view detailed information about that standard set on a dedicated page.
-2. **As a user**, I want to see the standard set's repository URL so that I can navigate to the repository for more information.
-3. **As a user**, I want the ability to see the entire text of each standard so that I can review detailed standards content.
-4. **As a user**, I want to see relevant classification tags for each standard so that I can quickly identify the categories or types of those standards.
-
-## 5. Functional Requirements
-
-### 5.1 New `/standards/standard-sets/{id}` Page
+### 4.1 New `/standards/standard-sets/{id}` Page
 
 1. **Page Route**  
    - **Path**: `/standards/standard-sets/{id}`
@@ -69,10 +60,12 @@ This document outlines the requirements for extending the existing Node.js appli
      - Show the `repository_url` as a clickable link that opens in a new tab.  
    - **Standards Table**  
      - Each row represents one standard from the array `standards` in the response.
+     - The width of the table and its contents should be no wider than the containing main element
      - **Columns**:
        1. **Standard**:
-          - Parse the Markdown text (`text`) into HTML.
-       2. **Classifications**:
+          - A GDS Details component (https://design-system.service.gov.uk/components/details/) with summary text being the first header or line of the markdown. Note to use `<details class="govuk-details">`. The GDS Details component requires the native HTML `<details>` element to work properly with the JavaScript module.
+          - Parse the Markdown text (`text`) into HTML. Note that the 'marked' library is already used in the application for this, so copy that convention.
+       1. **Classifications**:
           - For each `classification_id` in the standard's `classification_ids`, map to the classification name from `/api/v1/classifications`.
           - Display each classification name as a GDS-style tag (e.g., `<strong class="govuk-tag">Classification Name</strong>`).
 
@@ -100,7 +93,7 @@ This document outlines the requirements for extending the existing Node.js appli
 }
 ```
 
-### 5.2 Update the `/standards/standard-sets` Page
+### 4.2 Update the `/standards/standard-sets` Page
 
 1. **Current Functionality**  
    - The page displays a list of standard sets in a table.
@@ -109,7 +102,7 @@ This document outlines the requirements for extending the existing Node.js appli
    - The link should direct to the new page: `/standards/standard-sets/{id}`.
    - Ensure each row correctly passes its unique `_id`.
 
-## 6. UI/UX Requirements
+## 5. UI/UX Requirements
 
 1. **GDS Compliance**  
    - Use GOV.UK Frontend components for:
@@ -123,7 +116,7 @@ This document outlines the requirements for extending the existing Node.js appli
    - The table and tags must adapt to various screen sizes.
    - The layout must maintain readability on mobile devices.
 
-## 7. Acceptance Criteria
+## 6. Acceptance Criteria
 
 1. **Page Load**  
    - When `/standards/standard-sets/{id}` is accessed with a valid ID, the page loads:
@@ -140,5 +133,5 @@ This document outlines the requirements for extending the existing Node.js appli
    - The correct data is shown on the new page based on the passed `_id`.
 
 4. **Design & Accessibility**  
-   - The UI matches GDS design standards for tables, accordions, and tags.
+   - The UI matches GDS design standards for tables, details, and tags.
    - The page passes accessibility checks (e.g., keyboard navigation, screen reader text).
