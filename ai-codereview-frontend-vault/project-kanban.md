@@ -9,26 +9,26 @@ kanban-plugin: board
 - [ ] Add tools feature - once we have endpoint from Andrew Rea
 - [ ] add e2e tests in playwright
 - [ ] future feature: add a download link
+- [ ] CDP-style Interface
 
 
 ## To Do
 
-- [ ] improve tests and test coverage
-- [ ] refactor
-- [ ] update playbook repos cursor rules when done
-- [ ] CDP-style Interface
-- [ ] Update Docs in code checker tool
 
 
 ## Doing
 
-- [ ] review the js cursor rules (large)
-- [ ] Bug - can't select 1 standard, need to select multiple
 
 
 ## Done
 
 **Complete**
+- [x] Update Docs in code checker tool
+- [x] update playbook repos cursor rules when done
+- [x] refactor
+- [x] improve tests and test coverage
+- [x] Bug - can't select 1 standard, need to select multiple
+- [x] review the js cursor rules (large)
 - [x] [[standards-ingest-prd]]
 - [x] API changes
 	Table ordering - latest first
