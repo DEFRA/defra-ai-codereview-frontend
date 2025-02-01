@@ -1,5 +1,5 @@
 import { config } from '~/src/config/config.js'
-import { marked } from 'marked'
+import { markdown } from '~/src/config/nunjucks/filters/markdown.js'
 
 /**
  * @typedef {object} CodeReview
@@ -133,7 +133,7 @@ export async function getCodeReviewById(request, h) {
     if (review.compliance_reports && review.compliance_reports.length > 0) {
       review.compliance_reports = review.compliance_reports.map((report) => ({
         ...report,
-        report: marked(report.report)
+        report: markdown(report.report)
       }))
     }
 
