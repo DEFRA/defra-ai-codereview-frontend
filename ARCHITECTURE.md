@@ -4,7 +4,7 @@ This document outlines the architecture of the Defra AI Code Review Frontend app
 
 ## System Context
 
-The application is a web-based frontend service that provides an interface for AI-powered code reviews. It integrates with a separate backend API service for processing code review requests.
+The application is a web-based frontend service that provides interfaces for AI-powered code reviews and standards management. It integrates with a backend API service for processing code reviews and managing development standards.
 
 ```mermaid
 graph TB
@@ -12,6 +12,7 @@ graph TB
     Frontend-->API[Code Review API]
     Frontend-->Redis[(Redis Cache)]
     API-->Queue[(Review Queue)]
+    API-->Standards[(Standards DB)]
 
     subgraph Infrastructure
         Frontend
@@ -21,6 +22,7 @@ graph TB
     subgraph External Services
         API
         Queue
+        Standards
     end
 ```
 
@@ -32,7 +34,9 @@ sequenceDiagram
     participant F as Frontend
     participant A as API
     participant R as Redis
+    participant S as Standards DB
 
+    %% Code Review Flow
     U->>F: Submit Repository
     F->>A: Create Review Request
     A-->>F: Review ID
@@ -54,6 +58,21 @@ sequenceDiagram
     A-->>F: Full Results
     F->>R: Cache Results
     F-->>U: Display Results
+
+    %% Standards Management Flow
+    U->>F: Manage Standards
+    F->>A: Fetch Standards
+    A->>S: Query Standards
+    S-->>A: Standards Data
+    A-->>F: Standards List
+    F-->>U: Display Standards
+
+    U->>F: Create Standard Set
+    F->>A: Create Set Request
+    A->>S: Store Set
+    S-->>A: Confirmation
+    A-->>F: Success Response
+    F-->>U: Display Confirmation
 ```
 
 ## Component Architecture
@@ -86,6 +105,16 @@ graph TB
         Controllers-->Services
         Services-->Models
         Controllers-->Views
+    end
+
+    subgraph Feature Modules
+        Reviews[Code Reviews]
+        Standards[Standards Management]
+        Classifications[Classifications]
+
+        Reviews-->Controllers
+        Standards-->Controllers
+        Classifications-->Controllers
     end
 
     Server-->Router
@@ -140,6 +169,22 @@ graph TB
 - Support for development and production environments
 - Secure secrets management
 
+### Feature Modules
+
+#### Code Reviews
+
+- Repository submission
+- Status tracking
+- Results viewing
+- Cache management
+
+#### Standards Management
+
+- Standard sets CRUD operations
+- Standards viewing and organisation
+- Classification management
+- Markdown rendering
+
 ### Session Management
 
 - Redis-based session storage in production
@@ -173,6 +218,7 @@ The application uses a two-tier caching strategy:
 
 - Session state management
 - Code review results caching
+- Standards data caching
 - Temporary data storage
 
 To enable Redis locally:

@@ -27,7 +27,11 @@
               <tbody class="govuk-table__body">
                 {% for set in standardSets %}
                   <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">{{ set.name }}</td>
+                    <td class="govuk-table__cell">
+                      <a href="/standards/standard-sets/{{ set._id }}" class="govuk-link">
+                        {{ set.name }}
+                      </a>
+                    </td>
                     <td class="govuk-table__cell">{{ set.repository_url }}</td>
                     <td class="govuk-table__cell">
                       <form method="POST" action="/standards/standard-sets/{{ set._id }}/delete" style="display: inline;">

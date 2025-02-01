@@ -1,5 +1,6 @@
 import { config } from '~/src/config/config.js'
 import { buildNavigation } from '~/src/config/nunjucks/context/build-navigation.js'
+import { marked } from 'marked'
 
 /**
  * Get all standard sets
@@ -137,6 +138,61 @@ export async function deleteStandardSet(request, h) {
       statusCode: 500,
       title: 'Internal Server Error',
       message: 'Unable to delete standard set. Please try again later.'
+    })
+  }
+}
+
+/**
+ * Get standard set details
+ * @param {import('@hapi/hapi').Request} request
+ * @param {import('@hapi/hapi').ResponseToolkit} h
+ */
+export async function getStandardSetDetails(request, h) {
+  try {
+    // Fetch standard set details
+    const standardSetResponse = await fetch(
+      `${config.get('apiBaseUrl')}/api/v1/standard-sets/${request.params.id}`
+    )
+
+    if (!standardSetResponse.ok) {
+      throw new Error(
+        `API responded with status: ${standardSetResponse.status}`
+      )
+    }
+
+    const standardSet = await standardSetResponse.json()
+
+    // Parse markdown for each standard
+    standardSet.standards = standardSet.standards.map((standard) => ({
+      ...standard,
+      parsedText: marked(standard.text)
+    }))
+
+    // Fetch classifications
+    const classificationsResponse = await fetch(
+      `${config.get('apiBaseUrl')}/api/v1/classifications`
+    )
+
+    if (!classificationsResponse.ok) {
+      throw new Error(
+        `API responded with status: ${classificationsResponse.status}`
+      )
+    }
+
+    const classifications = await classificationsResponse.json()
+
+    return h.view('standards/standard-sets/detail', {
+      pageTitle: standardSet.name,
+      standardSet,
+      classifications,
+      navigation: buildNavigation(request)
+    })
+  } catch (err) {
+    request.logger.error('Error fetching standard set details:', err)
+    return h.view('error/index', {
+      statusCode: 500,
+      title: 'Internal Server Error',
+      message: 'Unable to fetch standard set details. Please try again later.'
     })
   }
 }

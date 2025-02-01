@@ -4,7 +4,8 @@ import {
   getStandardSets,
   showCreateStandardSet,
   createStandardSet,
-  deleteStandardSet
+  deleteStandardSet,
+  getStandardSetDetails
 } from './controller.js'
 
 describe('Standard Sets Controller', () => {
@@ -173,6 +174,93 @@ describe('Standard Sets Controller', () => {
         statusCode: 500,
         title: 'Internal Server Error',
         message: 'Unable to delete standard set. Please try again later.'
+      })
+    })
+  })
+
+  describe('getStandardSetDetails', () => {
+    const mockStandardSet = {
+      _id: '123',
+      name: 'Test Set',
+      repository_url: 'http://test.com',
+      standards: [
+        {
+          _id: 'std1',
+          text: '# Test Standard\nThis is a test standard',
+          classification_ids: ['class1']
+        }
+      ]
+    }
+
+    const mockClassifications = [{ _id: 'class1', name: 'Security' }]
+
+    beforeEach(() => {
+      request.params = { id: '123' }
+    })
+
+    it('should render standard set details page with data', async () => {
+      global.fetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockStandardSet)
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockClassifications)
+        })
+
+      await getStandardSetDetails(request, h)
+
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        1,
+        'http://test-api/api/v1/standard-sets/123'
+      )
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        2,
+        'http://test-api/api/v1/classifications'
+      )
+      expect(h.view).toHaveBeenCalledWith('standards/standard-sets/detail', {
+        pageTitle: mockStandardSet.name,
+        standardSet: mockStandardSet,
+        classifications: mockClassifications,
+        navigation: expect.any(Object)
+      })
+    })
+
+    it('should handle standard set API error', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500
+      })
+
+      await getStandardSetDetails(request, h)
+
+      expect(request.logger.error).toHaveBeenCalled()
+      expect(h.view).toHaveBeenCalledWith('error/index', {
+        statusCode: 500,
+        title: 'Internal Server Error',
+        message: 'Unable to fetch standard set details. Please try again later.'
+      })
+    })
+
+    it('should handle classifications API error', async () => {
+      global.fetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockStandardSet)
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 500
+        })
+
+      await getStandardSetDetails(request, h)
+
+      expect(request.logger.error).toHaveBeenCalled()
+      expect(h.view).toHaveBeenCalledWith('error/index', {
+        statusCode: 500,
+        title: 'Internal Server Error',
+        message: 'Unable to fetch standard set details. Please try again later.'
       })
     })
   })

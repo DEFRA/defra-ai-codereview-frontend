@@ -4,7 +4,12 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_defra-ai-codereview-frontend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_defra-ai-codereview-frontend)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_defra-ai-codereview-frontend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_defra-ai-codereview-frontend)
 
-A web application for submitting code repositories for AI-powered code review. This frontend service provides an interface for submitting repositories and reviewing the generated code analysis reports.
+A web application for managing AI-powered code reviews and development standards. This frontend service provides interfaces for:
+
+- Submitting repositories for code review
+- Reviewing generated code analysis reports
+- Managing development standards and classifications
+- Organising standards into reusable sets
 
 ## Contents
 
@@ -34,7 +39,7 @@ A web application for submitting code repositories for AI-powered code review. T
 
 ### Node.js
 
-Please install [Node.js](http://nodejs.org/) `>= v18` and [npm](https://nodejs.org/) `>= v9`. You will find it
+Please install [Node.js](http://nodejs.org/) `>= v22` and [npm](https://nodejs.org/) `>= v9`. You will find it
 easier to use the Node Version Manager [nvm](https://github.com/creationix/nvm)
 
 To use the correct version of Node.js for this application, via nvm:
@@ -66,18 +71,32 @@ The application uses the following core data models:
 }
 ```
 
-### Review Comment
+### Standard Set
 
 ```javascript
 {
   id: string,              // Unique identifier
-  reviewId: string,        // Reference to Repository Review
-  filePath: string,        // Path to the file
-  lineNumber: number,      // Line number in file
-  content: string,         // Comment content
-  type: string,            // Comment type (suggestion/issue)
-  severity: string,        // Severity level
-  createdAt: Date         // Creation timestamp
+  name: string,            // Display name
+  repositoryUrl: string,   // Standards repository URL
+  customPrompt: string,    // Optional custom review prompt
+  standards: [{            // Array of standards
+    id: string,           // Standard identifier
+    text: string,         // Markdown content
+    classificationIds: [string] // Associated classifications
+  }],
+  createdAt: Date,         // Creation timestamp
+  updatedAt: Date          // Last update timestamp
+}
+```
+
+### Classification
+
+```javascript
+{
+  id: string,              // Unique identifier
+  name: string,            // Display name
+  createdAt: Date,         // Creation timestamp
+  updatedAt: Date          // Last update timestamp
 }
 ```
 
