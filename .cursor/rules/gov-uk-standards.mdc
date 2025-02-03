@@ -1,0 +1,33 @@
+---
+description: GOV.UK Frontend
+globs: *.njk, *.js
+---
+# GOV UK Frontend
+- Follow GOV.UK frontend conventions
+- Use the GOV.UK design system
+- Follow progressive enhancement principles
+
+## Tech Stack
+- Node.js + Hapi.js
+- govuk-frontend npm library
+- Nunjucks templates npm library
+
+## Template Structure
+- Use layouts/page.njk as base template
+- Follow GDS template hierarchy
+- Include required blocks:
+  - pageTitle
+  - content
+
+## Nunjucks Filters
+- Custom filters located in src/config/nunjucks/filters/
+- Each filter should have its own file
+- Common filters:
+  - formatDate
+  - formatCurrency
+  - markdown (for content formatting)
+
+## Content Guidelines
+- Follow GDS content patterns
+- Use appropriate heading hierarchy
+- Ensure accessible content structure

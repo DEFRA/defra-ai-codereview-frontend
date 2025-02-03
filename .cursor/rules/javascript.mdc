@@ -1,0 +1,57 @@
+---
+description: Javascript in Defra
+globs: *.js
+---
+# JavaScript in Defra
+
+## Language
+- JavaScript
+- TypeScript (for type checking only)
+
+## Tech Stack
+- Node.js + Hapi.js
+- govuk-frontend npm library
+- Nunjucks templates npm library
+- Webpack + Babel
+- Jest + ESLint + Prettier
+- SCSS + PostCSS + Stylelint
+
+## Code Standards
+- Use vanilla JavaScript (no TypeScript files)
+- Use JSDoc for type annotations
+- Use TypeScript for type checking only
+- Use ES Modules with named exports
+- Use absolute imports with '~' alias for internal project files
+- Use convict for configuration management
+- Use BEM-style naming with 'app-' prefix
+
+## Project Structure
+- /src/config/ - Configuration and setup
+  - /nunjucks/ - Template engine setup
+    - /filters/ - Custom Nunjucks filters
+    - /globals/ - Global template variables
+- /src/server/ - Server-side code
+  - /common/ - Shared components
+  - /{feature}/ - Feature-specific code
+    - controller.js
+    - controller.test.js
+    - index.js (routes)
+    - *.njk (templates)
+
+## Markdown Parsing
+- Use marked library for parsing markdown
+- Configure marked options to match GDS styling
+- Always sanitize markdown output
+- Common use cases:
+  - Standards content
+  - Documentation
+  - Help text
+
+## Testing
+- Write comprehensive Jest tests
+- Test functionality, not implementation
+  - End-to-end coverage
+  - API: test input/output
+  - UI: test behavior + use data-testid
+- Use describe blocks and beforeEach for setup
+- Mock external dependencies
