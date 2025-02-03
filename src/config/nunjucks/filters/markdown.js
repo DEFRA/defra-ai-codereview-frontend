@@ -16,4 +16,4 @@ marked.setOptions({
 export function markdown(text) {
   if (!text) return ''
   return marked(text)
-} 
+}
