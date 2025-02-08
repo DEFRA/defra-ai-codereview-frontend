@@ -12,7 +12,7 @@
 * When I click on a standard set name
 * Then I should be redirected to /standards/standard-sets/{id}
 * And the page displays the standard set's name and a clickable repository URL that opens in a new tab
-* And a table listing each standard with its parsed markdown content and associated classification tags.
+* And a table listing each standard with its title, parsed markdown content and associated classification tags.
 
 #### Scenario: Successfully loading a valid standard set details page
 * Given I access /standards/standard-sets/{id} with a valid standard set ID
@@ -20,7 +20,7 @@
 * Then it should retrieve the standard set data from GET /api/v1/standard-sets/{id}
 * And fetch the classification data from GET /api/v1/classifications
 * And display the standard set's name, repository URL, and a table where:
-  * Each standard is presented using a GDS Details component with the first header or line of markdown as the summary
+  * Each standard is presented using a GDS Details component with the first header from the markdown as the summary
   * The markdown text is parsed into HTML
   * Each classification ID is mapped to its corresponding classification name and rendered as a GOV.UK tag.
 
@@ -43,7 +43,7 @@
 #### Standard Set Data:
 * Endpoint: GET /api/v1/standard-sets/{standard_set_id}
 * Usage: Retrieves the standard set details including the name, repository URL, custom prompt, and an array of standards.
-* Example Response:
+* Example Response below. Note that the first heading in the text field is the title of the standard:
 
 ```json
 {
@@ -90,18 +90,21 @@
 ```
 
 ### 3. Display and Rendering
+The page should use the full width of the content area.
+
 #### Standard Set Details:
 * Display the standard set's name prominently.
 * Render the repository_url as a clickable link that opens in a new tab.
 
 #### Standards Table:
+* Give the table a title of "Standards"
 * For each standard in the standards array:
   * Standard Column:
-    * Use a GDS Details component (`<details class="govuk-details">`) with the summary text derived from the first header or line of the markdown text.
+    * Use a GDS Details component (`govuk-details`) with the summary text derived from the first header of the markdown text.
     * Parse the markdown using the existing 'marked' library.
   * Classifications Column:
     * Map each classification_id to its corresponding classification name retrieved from the classifications API.
-    * Display each classification name as a GOV.UK style tag using `<strong class="govuk-tag">`.
+    * Display each classification name as a GOV.UK style tag component (`govuk-tag`).
 
 ### 4. Update to /standards/standard-sets Page
 * Modify the standard set list page so that each standard set name is a clickable link.
