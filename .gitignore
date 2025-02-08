@@ -11,3 +11,9 @@ coverage
 .envrc
 tsconfig.tsbuildinfo
 ai-codereview-frontend-vault/.obsidian/workspace.json
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
