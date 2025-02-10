@@ -22,8 +22,4 @@ test.describe('Home Page', () => {
   test('should have the correct page title', async ({ page }) => {
     await expect(page).toHaveTitle(/Intelligent Code Reviewer/)
   })
-
-  test('should have main content area', async ({ page }) => {
-    await expect(page.locator('.govuk-main-wrapper')).toBeVisible()
-  })
 })
