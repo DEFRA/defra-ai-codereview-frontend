@@ -2,6 +2,20 @@
 
 // Example namespaced custom element style CSS classes
 
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.govuk-main-wrapper {
+  flex: 1 0 auto;
+}
+
+.govuk-footer {
+  margin-top: auto;
+}
+
 .app-main-wrapper {
   display: block;
   padding-top: govuk-spacing(4);

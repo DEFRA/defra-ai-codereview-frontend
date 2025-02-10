@@ -1,66 +1,97 @@
 {% extends "layouts/page.njk" %}
 
+{% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+
 {% block content %}
   <div class="govuk-width-container">
     <main class="govuk-main-wrapper" id="main-content" role="main">
-      <a href="/standards" class="govuk-back-link">Back</a>
+      {{ govukBreadcrumbs({
+        items: [
+          {
+            text: "Home",
+            href: "/"
+          },
+          {
+            text: "Standards",
+            href: "/standards"
+          },
+          {
+            text: "Classifications"
+          }
+        ]
+      }) }}
 
-      <h1 class="govuk-heading-l">Manage Classifications</h1>
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          <h1 class="govuk-heading-l">Manage Classifications</h1>
+          
+          <p class="govuk-body">Use classifications to:</p>
+          <ul class="govuk-list govuk-list--bullet">
+            <li>categorize code review standards by technology or domain</li>
+            <li>organize standards into logical groups</li>
+            <li>filter and search standards more effectively</li>
+          </ul>
+        </div>
+      </div>
 
       {% if errors %}
-        <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
-          <h2 class="govuk-error-summary__title" id="error-summary-title">
-            There is a problem
-          </h2>
-          <div class="govuk-error-summary__body">
-            <ul class="govuk-list govuk-error-summary__list">
-              {% for error in errors %}
-                <li>
-                  <a href="#{{ error.field }}">{{ error.message }}</a>
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
+        {{ govukNotificationBanner({
+          titleText: "There is a problem",
+          type: "error",
+          html: '<ul class="govuk-list govuk-list--bullet govuk-error-message">
+            {% for error in errors %}
+              <li>{{ error.message }}</li>
+            {% endfor %}
+          </ul>'
+        }) }}
       {% endif %}
 
       <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
           {% if classifications and classifications.length > 0 %}
-            <table class="govuk-table app-table--classifications" role="table" aria-label="List of classifications">
-              <caption class="govuk-table__caption govuk-table__caption--m">Current Classifications</caption>
-              <tbody class="govuk-table__body">
-                {% for classification in classifications %}
-                  <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">
-                      <span class="govuk-!-font-weight-bold">{{ classification.name }}</span>
-                      <br>
-                      <span class="govuk-hint govuk-!-margin-bottom-0 govuk-!-font-size-16">Created {{ classification.created_at | formatDate("dd/MM/yyyy HH:mm") }}</span>
-                    </td>
-                    <td class="govuk-table__cell">
-                      <form method="POST" action="/standards/classifications/{{ classification._id }}/delete" class="app-delete-classification">
-                        <div class="govuk-button-group">
-                          <button type="submit" 
-                                  class="govuk-button govuk-button--warning" 
-                                  data-module="govuk-button"
-                                  data-prevent-double-click="true">
-                            Delete classification
-                          </button>
-                          <div class="govuk-warning-text govuk-!-margin-bottom-0 govuk-!-margin-left-2">
-                            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                            <strong class="govuk-warning-text__text">
-                              This action cannot be undone
-                            </strong>
-                          </div>
-                        </div>
-                      </form>
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+            {% set tableRows = [] %}
+            {% for classification in classifications %}
+              {% set tableRows = (tableRows.push([
+                {
+                  html: '<span class="govuk-!-font-weight-bold">' + classification.name + '</span><br><span class="govuk-hint govuk-!-margin-bottom-0 govuk-!-font-size-16">Created ' + classification.created_at | formatDate("dd/MM/yyyy HH:mm") + '</span>'
+                },
+                {
+                  html: '<form method="POST" action="/standards/classifications/' + classification._id + '/delete">
+                    ' + govukButton({
+                      text: "Delete",
+                      classes: "govuk-button--warning govuk-!-margin-0",
+                      attributes: {
+                        "data-module": "govuk-button",
+                        "data-prevent-double-click": "true"
+                      }
+                    }) + '
+                  </form>'
+                }
+              ]), tableRows) %}
+            {% endfor %}
+
+            {{ govukTable({
+              caption: "Current Classifications",
+              captionClasses: "govuk-table__caption--m",
+              firstCellIsHeader: true,
+              head: [
+                {
+                  text: "Classification"
+                },
+                {
+                  text: "Actions",
+                  classes: "govuk-!-width-one-quarter"
+                }
+              ],
+              rows: tableRows
+            }) }}
           {% else %}
-            <p class="govuk-body" role="alert">No classifications found.</p>
+            <p class="govuk-body-l" role="alert">No classifications found. Add your first classification below.</p>
           {% endif %}
         </div>
       </div>
@@ -68,33 +99,26 @@
       <div class="govuk-grid-row govuk-!-margin-top-6">
         <div class="govuk-grid-column-two-thirds">
           <form method="POST" action="/standards/classifications" novalidate>
-            <div class="govuk-form-group">
-              <label class="govuk-label" for="name">
-                <h2 class="govuk-heading-m">Add new classification</h2>
-                Classification name
-              </label>
-              <div id="classification-hint" class="govuk-hint">
-                Enter a unique name for the classification
-              </div>
-              {% if errors and errors.name %}
-                <p id="name-error" class="govuk-error-message">
-                  <span class="govuk-visually-hidden">Error:</span> {{ errors.name.message }}
-                </p>
-              {% endif %}
-              <input class="govuk-input {% if errors and errors.name %}govuk-input--error{% endif %}" 
-                     id="name" 
-                     name="name" 
-                     type="text" 
-                     aria-describedby="classification-hint{% if errors and errors.name %} name-error{% endif %}"
-                     required
-                     pattern="[A-Za-z0-9\s#.-]+"
-                     title="Classification name can only contain letters, numbers, spaces, dots, hyphens and hash symbols"
-                     value="{{ data.name if data.name }}">
-            </div>
+            {{ govukInput({
+              label: {
+                text: "Add new classification",
+                classes: "govuk-label--m",
+                isPageHeading: false
+              },
+              hint: {
+                text: "Enter a unique name for the classification. You can use letters, numbers, spaces, dots, hyphens and hash symbols."
+              },
+              id: "name",
+              name: "name",
+              value: data.name if data.name,
+              errorMessage: errors.name if errors and errors.name
+            }) }}
 
-            <button type="submit" class="govuk-button" data-module="govuk-button" data-prevent-double-click="true">
-              Add classification
-            </button>
+            {{ govukButton({
+              text: "Add classification",
+              preventDoubleClick: true,
+              classes: "govuk-button--primary"
+            }) }}
           </form>
         </div>
       </div>
