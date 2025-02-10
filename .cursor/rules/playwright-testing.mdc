@@ -2,12 +2,9 @@
 description: Playwright Testing
 globs: tests/*.js
 ---
- # Playwright Testing Standards
-
-This document outlines the standards and patterns for Playwright testing in our application.
+# Playwright Testing Standards
 
 ## Test File Structure
-
 - Test files should be placed in the `/tests` directory
 - Use `.spec.js` extension for test files
 - Group related tests using `test.describe()`
@@ -19,50 +16,47 @@ This document outlines the standards and patterns for Playwright testing in our 
 - Ensure tests are reproducible and isolated
 - Use test.beforeEach() for common setup steps
 - Avoid sharing state between tests
-- Use GOV.UK Frontend class locators when testing GDS components  
+- Follow a journey-based approach for complex flows
+- Always use ES Module syntax with named imports
+- Prefer GOV.UK Frontend class locators when testing GDS components  
 
-## Best Practices
+## Locators
+- Prefer GOV.UK Frontend class locators when testing GDS components  
+- Next, prefer user-facing attributes, including:
+   - role-based locators: `page.getByRole('button', { name: 'Submit' })`
+   - label-based locators: `page.getByLabel('User Name')`
+   - text-based locators: `page.getByText('Welcome, John!')`
+   - Avoid test IDs unless absolutely necessary
 
-1. **Page Navigation**
-   - Use helper functions like `navigateToHome()` for common navigation
-   - Wait for critical elements using `page.waitForSelector()`
+## Assertions
+- Use clear, specific assertions
+- Verify visibility: `await expect(element).toBeVisible()`
+- Check content: `await expect(element).toContainText('expected text')`
+- Validate page titles: `await expect(page).toHaveTitle(/Title Pattern/)`
 
-2. **Locators**
-   - Prefer GOV.UK Frontend class locators when testing GDS components  
-   - Next, prefer user-facing attributes, including:
-      - role-based locators: `page.getByRole('button', { name: 'Submit' })`
-      - label-based locators: `page.getByLabel('User Name')`
-      - text-based locators: `page.getByText('Welcome, John!')`
-      - Avoid test IDs unless absolutely necessary
+## GDS Component Testing
+- Use proper GDS class names for components
+- Test component hierarchy (e.g., details within table row
+- Always check if GDS components are visible before interacting
+- Use appropriate waiting strategies for dynamic content
+- Test component state transitions:
+  - Verify initial/default state before interaction
+  - Test interaction behavior
+  - Verify final state after interaction
+- For Details components:
+  - Check initial collapsed state (content hidden)
+  - Click summary element, not the details container
+  - Verify 'open' attribute and content visibility
+  - Test collapse behavior
 
-3. **Assertions**
-   - Use clear, specific assertions
-   - Verify visibility: `await expect(element).toBeVisible()`
-   - Check content: `await expect(element).toContainText('expected text')`
-   - Validate page titles: `await expect(page).toHaveTitle(/Title Pattern/)`
+## Test Data Management
+- Use constants for test data
+- Avoid hardcoding IDs or dynamic values
+- Use regular expressions for flexible matching
 
-4. **Test Helpers**
-   - Create reusable helper functions for common operations
-   - Document helper functions with JSDoc comments
-   - Keep helpers focused and single-purpose
-
-## Best Practices for GDS Testing
-
-1. **Locators**
-   - Prefer GOV.UK Frontend class locators when testing GDS components  
-
-1. **Component Visibility**
-   - Always check if GDS components are visible before interacting
-   - Use appropriate waiting strategies for dynamic content
-
-2. **Error States**
-   - Test both valid and invalid form submissions
-   - Verify error message content matches GDS patterns
-   - Check error summary links navigate to correct fields
-
-3. **Accessibility**
-   - Test keyboard navigation through GDS components
-   - Verify ARIA attributes are present and correct
-   - Check focus management follows GDS patterns
+## Performance Considerations
+- Keep tests focused and minimal
+- Avoid unnecessary assertions
+- Clean up resources after tests
 
 
