@@ -1,6 +1,7 @@
 {% extends "layouts/page.njk" %}
 
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
 
 {% block beforeContent %}
   {{ govukBreadcrumbs({
@@ -20,51 +21,61 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">Code Reviews</h1>
+      
+      <div class="govuk-body">
+        <p>View previous automated code reviews</p>
+      </div>
     </div>
   </div>
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-      {% if codeReviews and codeReviews.length > 0 %}
-        <table class="govuk-table" role="table" aria-label="List of code reviews">
-          <thead class="govuk-table__head">
-            <tr class="govuk-table__row">
-              <th scope="col" class="govuk-table__header" aria-sort="none">Code Repository</th>
-              <th scope="col" class="govuk-table__header" aria-sort="none">Created</th>
-              <th scope="col" class="govuk-table__header" aria-sort="none">Updated</th>
-              <th scope="col" class="govuk-table__header" aria-sort="none">Status</th>
-            </tr>
-          </thead>
-          <tbody class="govuk-table__body">
-            {% for review in codeReviews %}
-              <tr class="govuk-table__row">
-                <td class="govuk-table__cell">
-                  <a href="{{ review.detailUrl }}" 
-                     class="govuk-link" 
-                     aria-label="View details for code review of {{ review.repository_url }}">
-                    {{ review.repository_url }}
-                  </a>
-                </td>
-                <td class="govuk-table__cell">
-                  <span aria-label="Created on {{ review.created_at }}">{{ review.created_at }}</span>
-                </td>
-                <td class="govuk-table__cell">
-                  <span aria-label="Last updated on {{ review.updated_at }}">{{ review.updated_at }}</span>
-                </td>
-                <td class="govuk-table__cell">
-                  <strong class="govuk-tag {% if review.status == 'failed' %}govuk-tag--red{% elif review.status == 'completed' %}govuk-tag--green{% endif %}"
-                          role="status"
-                          data-review-id="{{ review._id }}"
-                          aria-label="Review status: {{ review.status | replace("_", " ") | title }}">
-                    {{ review.status | replace("_", " ") | title }}
-                  </strong>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      {% if tableRows and tableRows.length > 0 %}
+        {{ govukTable({
+          caption: "Current Code Reviews",
+          captionClasses: "govuk-table__caption--m",
+          firstCellIsHeader: false,
+          attributes: {
+            "aria-label": "List of all code reviews with their status",
+            "data-module": "govuk-table"
+          },
+          classes: "app-code-reviews-table",
+          head: [
+            {
+              text: "Code Repository",
+              attributes: {
+                "aria-sort": "none",
+                scope: "col"
+              }
+            },
+            {
+              text: "Created",
+              attributes: {
+                "aria-sort": "none",
+                scope: "col"
+              }
+            },
+            {
+              text: "Updated",
+              attributes: {
+                "aria-sort": "none",
+                scope: "col"
+              }
+            },
+            {
+              text: "Status",
+              attributes: {
+                "aria-sort": "none",
+                scope: "col"
+              }
+            }
+          ],
+          rows: tableRows
+        }) }}
       {% else %}
-        <p class="govuk-body-l" role="alert">No code reviews found.</p>
+        <div class="govuk-inset-text" role="region" aria-label="No reviews found">
+          <p class="govuk-body">No code reviews found. Use the button above to start a new code review.</p>
+        </div>
       {% endif %}
     </div>
   </div>

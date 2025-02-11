@@ -55,17 +55,37 @@ export async function getCodeReviews(request, h) {
     )
     const codeReviews = await response.json()
 
-    // Format dates and add detail page URLs
-    const formattedReviews = codeReviews.map((review) => ({
-      ...review,
-      created_at: formatDate(review.created_at),
-      updated_at: formatDate(review.updated_at),
-      detailUrl: `/code-reviews/${review._id}`
-    }))
+    // Format the data exactly as needed by govukTable
+    const tableRows = codeReviews.map((review) => [
+      {
+        html: `<a href="/code-reviews/${review._id}" class="govuk-link" aria-label="View details for code review of ${review.repository_url}">${review.repository_url}</a>`,
+        attributes: {
+          'data-label': 'Code Repository'
+        }
+      },
+      {
+        html: `<time datetime="${review.created_at}">${formatDate(review.created_at)}</time>`,
+        attributes: {
+          'data-label': 'Created'
+        }
+      },
+      {
+        html: `<time datetime="${review.updated_at}">${formatDate(review.updated_at)}</time>`,
+        attributes: {
+          'data-label': 'Updated'
+        }
+      },
+      {
+        html: `<strong class="govuk-tag ${review.status === 'failed' ? 'govuk-tag--red' : review.status === 'completed' ? 'govuk-tag--green' : ''}" role="status" data-review-id="${review._id}" aria-label="Review status: ${review.status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}">${review.status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}</strong>`,
+        attributes: {
+          'data-label': 'Status'
+        }
+      }
+    ])
 
     return h.view('code-reviews/index', {
       pageTitle: 'Code Reviews',
-      codeReviews: formattedReviews
+      tableRows
     })
   } catch (err) {
     request.logger.error('Error fetching code reviews:', err)

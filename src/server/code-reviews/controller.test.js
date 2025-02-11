@@ -54,16 +54,34 @@ describe('Code Reviews Controller', () => {
       )
       expect(mockH.view).toHaveBeenCalledWith('code-reviews/index', {
         pageTitle: 'Code Reviews',
-        codeReviews: expect.arrayContaining([
-          expect.objectContaining({
-            _id: mockReviews[0]._id,
-            repository_url: mockReviews[0].repository_url,
-            status: mockReviews[0].status,
-            created_at: '14 January 2024 at 12:00pm',
-            updated_at: '14 January 2024 at 1:00pm',
-            detailUrl: `/code-reviews/${mockReviews[0]._id}`
-          })
-        ])
+        tableRows: [
+          [
+            {
+              html: `<a href="/code-reviews/${mockReview._id}" class="govuk-link" aria-label="View details for code review of ${mockReview.repository_url}">${mockReview.repository_url}</a>`,
+              attributes: {
+                'data-label': 'Code Repository'
+              }
+            },
+            {
+              html: `<time datetime="${mockReview.created_at}">14 January 2024 at 12:00pm</time>`,
+              attributes: {
+                'data-label': 'Created'
+              }
+            },
+            {
+              html: `<time datetime="${mockReview.updated_at}">14 January 2024 at 1:00pm</time>`,
+              attributes: {
+                'data-label': 'Updated'
+              }
+            },
+            {
+              html: `<strong class="govuk-tag govuk-tag--green" role="status" data-review-id="${mockReview._id}" aria-label="Review status: Completed">Completed</strong>`,
+              attributes: {
+                'data-label': 'Status'
+              }
+            }
+          ]
+        ]
       })
     })
 
