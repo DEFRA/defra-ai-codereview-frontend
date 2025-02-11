@@ -1,6 +1,8 @@
 {% extends "layouts/page.njk" %}
 
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
 
 {% block pageTitle %}
   Standard Sets - Defra AI Code Review
@@ -27,40 +29,67 @@
 
       <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-          <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+          <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
 
-          <a href="/standards/standard-sets/create" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
-            Add new standard set
-          </a>
+          <p class="govuk-body">Use standard sets to:</p>
+          <ul class="govuk-list govuk-list--bullet">
+            <li>manage standards sets</li>
+            <li>view the standards within a set</li>
+            <li>view the classifications of each standard</li>
+          </ul>
 
           {% if standardSets.length > 0 %}
-            <table class="govuk-table">
-              <thead class="govuk-table__head">
-                <tr class="govuk-table__row">
-                  <th scope="col" class="govuk-table__header">Name</th>
-                  <th scope="col" class="govuk-table__header">Repository URL</th>
-                  <th scope="col" class="govuk-table__header">Actions</th>
-                </tr>
-              </thead>
-              <tbody class="govuk-table__body">
-                {% for set in standardSets %}
-                  <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">{{ set.name }}</td>
-                    <td class="govuk-table__cell">{{ set.repository_url }}</td>
-                    <td class="govuk-table__cell">
-                      <form method="POST" action="/standards/standard-sets/{{ set._id }}/delete" style="display: inline;">
-                        <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
-                          Delete
-                        </button>
-                      </form>
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+            {% set tableRows = [] %}
+            {% for set in standardSets %}
+              {% set tableRows = (tableRows.push([
+                {
+                  html: '<span class="govuk-!-font-weight-bold">' + set.name + '</span><br><span class="govuk-hint govuk-!-margin-bottom-0 govuk-!-font-size-16">' + set.repository_url + '</span>'
+                },
+                {
+                  html: '<form method="POST" action="/standards/standard-sets/' + set._id + '/delete">
+                    ' + govukButton({
+                      text: "Delete",
+                      classes: "govuk-button--warning govuk-!-margin-0",
+                      attributes: {
+                        "data-module": "govuk-button",
+                        "data-prevent-double-click": "true"
+                      }
+                    }) + '
+                  </form>'
+                }
+              ]), tableRows) %}
+            {% endfor %}
+
+            {{ govukTable({
+              caption: "Current Standard Sets",
+              captionClasses: "govuk-table__caption--m",
+              firstCellIsHeader: true,
+              head: [
+                {
+                  text: "Standard Set"
+                },
+                {
+                  text: "Actions",
+                  classes: "govuk-!-width-one-quarter"
+                }
+              ],
+              rows: tableRows
+            }) }}
           {% else %}
-            <p class="govuk-body">No standard sets found.</p>
+            <p class="govuk-body-l" role="alert">No standard sets found. Add your first standard set below.</p>
           {% endif %}
+        </div>
+      </div>
+
+      <div class="govuk-grid-row govuk-!-margin-top-6">
+        <div class="govuk-grid-column-two-thirds">
+          <form method="GET" action="/standards/standard-sets/create" novalidate>
+            <h2 class="govuk-heading-m">Add new standard set</h2>
+            {{ govukButton({
+              text: "Add new standard set",
+              classes: "govuk-button--primary"
+            }) }}
+          </form>
         </div>
       </div>
     </main>
