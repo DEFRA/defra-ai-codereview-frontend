@@ -15,6 +15,7 @@ globs: *.njk, *.js
 - Required template blocks:
   - pageTitle: Page title with " - Defra AI Code Review" suffix
   - content: Main content area
+  - beforeContent: For breadcrumbs and navigation
 - Use govuk-width-container for page layout
 - Use govuk-main-wrapper for main content
 - Use govuk-grid-row and govuk-grid-column-* for grid layouts
@@ -55,3 +56,48 @@ globs: *.njk, *.js
   - formatDate
   - formatCurrency
   - markdown (for content formatting)
+
+## Accessibility Standards
+- Use appropriate ARIA roles and labels
+- Provide descriptive text for screen readers
+- Ensure keyboard navigation
+- Use semantic HTML elements
+- Follow color contrast guidelines
+- Provide alternative text for images
+- Use proper heading hierarchy
+
+## Empty States
+- Use govuk-inset-text for empty states
+- Provide clear user guidance
+- Include appropriate roles (region, alert)
+- Give clear next steps
+
+## Table Standards
+- Use govuk-table macro consistently
+- Include captions for context
+- Use proper column headers with scope
+- Add data-label for mobile responsiveness
+- Include appropriate ARIA labels
+- Sort indicators where applicable
+
+## Component Patterns
+- Import macros at top of template
+- Group related components
+- Consistent spacing (govuk-!-margin-*)
+- Clear visual hierarchy
+- Proper component nesting
+
+## Content Structure
+- Clear page titles
+- Descriptive headings
+- Bulleted lists for clarity
+- Action-oriented buttons
+- Consistent tone and voice
+- User-focused content
+
+## Mobile Responsiveness
+- Use responsive grid classes
+- Test on all viewports
+- Ensure touch targets
+- Consider mobile-first design
+- Adapt tables for small screens
