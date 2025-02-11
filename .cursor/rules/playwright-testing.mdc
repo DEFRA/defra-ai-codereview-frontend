@@ -7,8 +7,8 @@ globs: tests/*.js
 ## Testing Philosophy
 - Test user-visible behavior, not implementation details
 - Keep tests isolated and independent
-- Mock external dependencies and network calls
-- Use data-test attributes sparingly, prefer role-based selectors
+- Focus on end-to-end user journeys
+- Test server-rendered content and interactions
 
 ## Test Structure
 - Place tests in `/tests` directory with `.spec.js` extension
@@ -76,17 +76,19 @@ globs: tests/*.js
 - Test color contrast compliance
 - Check ARIA attributes and roles
 
-## Network and Data Handling
-- Mock external API calls using page.route()
-- Use test data fixtures for consistent state
-- Reset database/state between tests
-- Handle authentication consistently
+## Server-Side Testing Considerations
+- Test complete user journeys
+- Verify server-rendered content
+- Test form submissions and redirects
+- Check error pages and status codes
+- Verify session handling
+- Test navigation flows
 
 ## Best Practices
 - Test components in both default and error states
 - Verify form validation messages
 - Ensure proper heading hierarchy
-- Write focused, atomic tests
+- Test real user journeys end-to-end
 
 ## Performance Considerations
 - Minimize test setup/teardown overhead
