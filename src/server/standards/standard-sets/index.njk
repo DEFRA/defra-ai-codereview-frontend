@@ -2,96 +2,141 @@
 
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
 
-{% block pageTitle %}
-  Standard Sets - Defra AI Code Review
+{% block beforeContent %}
+  {{ govukBreadcrumbs({
+    items: [
+      {
+        text: "Home",
+        href: "/"
+      },
+      {
+        text: "Standards",
+        href: "/standards"
+      },
+      {
+        text: "Standard Sets"
+      }
+    ]
+  }) }}
 {% endblock %}
 
 {% block content %}
-  <div class="govuk-width-container">
-    <main class="govuk-main-wrapper" id="main-content" role="main">
-      {{ govukBreadcrumbs({
-        items: [
-          {
-            text: "Home",
-            href: "/"
-          },
-          {
-            text: "Standards",
-            href: "/standards"
-          },
-          {
-            text: "Standard Sets"
-          }
-        ]
-      }) }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">Manage Standard Sets</h1>
+      
+      <p class="govuk-body">Use standard sets to:</p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>manage standards sets</li>
+        <li>view the standards within a set</li>
+        <li>view the classifications of each standard</li>
+      </ul>
+    </div>
+  </div>
 
-      <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-          <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
+  {% if errors %}
+    {{ govukNotificationBanner({
+      titleText: "There is a problem",
+      type: "error",
+      html: '<ul class="govuk-list govuk-list--bullet govuk-error-message">
+        {% for error in errors %}
+          <li>{{ error.message }}</li>
+        {% endfor %}
+      </ul>'
+    }) }}
+  {% endif %}
 
-          <p class="govuk-body">Use standard sets to:</p>
-          <ul class="govuk-list govuk-list--bullet">
-            <li>manage standards sets</li>
-            <li>view the standards within a set</li>
-            <li>view the classifications of each standard</li>
-          </ul>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      {% if standardSets and standardSets.length > 0 %}
+        {% set tableRows = [] %}
+        {% for set in standardSets %}
+          {% set tableRows = (tableRows.push([
+            {
+              html: '<span class="govuk-!-font-weight-bold">' + set.name + '</span><br><span class="govuk-hint govuk-!-margin-bottom-0 govuk-!-font-size-16">' + set.repository_url + '</span>'
+            },
+            {
+              html: '<form method="POST" action="/standards/standard-sets/' + set._id + '/delete" class="govuk-!-margin-bottom-0">
+                ' + govukButton({
+                  text: "Delete",
+                  classes: "govuk-button--warning govuk-!-margin-0",
+                  attributes: {
+                    "data-module": "govuk-button",
+                    "data-prevent-double-click": "true"
+                  }
+                }) + '
+              </form>'
+            }
+          ]), tableRows) %}
+        {% endfor %}
 
-          {% if standardSets.length > 0 %}
-            {% set tableRows = [] %}
-            {% for set in standardSets %}
-              {% set tableRows = (tableRows.push([
-                {
-                  html: '<span class="govuk-!-font-weight-bold">' + set.name + '</span><br><span class="govuk-hint govuk-!-margin-bottom-0 govuk-!-font-size-16">' + set.repository_url + '</span>'
-                },
-                {
-                  html: '<form method="POST" action="/standards/standard-sets/' + set._id + '/delete">
-                    ' + govukButton({
-                      text: "Delete",
-                      classes: "govuk-button--warning govuk-!-margin-0",
-                      attributes: {
-                        "data-module": "govuk-button",
-                        "data-prevent-double-click": "true"
-                      }
-                    }) + '
-                  </form>'
-                }
-              ]), tableRows) %}
-            {% endfor %}
+        {{ govukTable({
+          caption: "Current Standard Sets",
+          captionClasses: "govuk-table__caption--m",
+          firstCellIsHeader: true,
+          head: [
+            {
+              text: "Standard Set"
+            },
+            {
+              text: "Actions",
+              classes: "govuk-!-width-one-quarter"
+            }
+          ],
+          rows: tableRows
+        }) }}
+      {% else %}
+        <p class="govuk-body-l" role="alert">No standard sets found. Add your first standard set below.</p>
+      {% endif %}
+    </div>
+  </div>
 
-            {{ govukTable({
-              caption: "Current Standard Sets",
-              captionClasses: "govuk-table__caption--m",
-              firstCellIsHeader: true,
-              head: [
-                {
-                  text: "Standard Set"
-                },
-                {
-                  text: "Actions",
-                  classes: "govuk-!-width-one-quarter"
-                }
-              ],
-              rows: tableRows
-            }) }}
-          {% else %}
-            <p class="govuk-body-l" role="alert">No standard sets found. Add your first standard set below.</p>
-          {% endif %}
+  <div class="govuk-grid-row govuk-!-margin-top-6">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">Create Standard Set</h1>
+      <form method="POST" action="/standards/standard-sets" novalidate>
+        <div class="govuk-form-group">
+          {{ govukInput({
+            label: {
+              text: "Name",
+              isPageHeading: false
+            },
+            hint: {
+              text: "Enter a unique name for the standard set. You can use letters, numbers, spaces, dots, hyphens and hash symbols."
+            },
+            id: "name",
+            name: "name",
+            value: data.name if data.name,
+            errorMessage: errors.name if errors and errors.name
+          }) }}
         </div>
-      </div>
 
-      <div class="govuk-grid-row govuk-!-margin-top-6">
-        <div class="govuk-grid-column-two-thirds">
-          <form method="GET" action="/standards/standard-sets/create" novalidate>
-            <h2 class="govuk-heading-m">Add new standard set</h2>
-            {{ govukButton({
-              text: "Add new standard set",
-              classes: "govuk-button--primary"
-            }) }}
-          </form>
+        <div class="govuk-form-group">
+          {{ govukInput({
+            label: {
+              text: "Repository URL",
+              isPageHeading: false
+            },
+            hint: {
+              text: "Enter the URL of the Git repository containing your standards. This must be a public repository that contains a standards.json file."
+            },
+            id: "repository_url",
+            name: "repository_url",
+            type: "url",
+            spellcheck: false,
+            value: data.repository_url if data.repository_url,
+            errorMessage: errors.repository_url if errors and errors.repository_url
+          }) }}
         </div>
-      </div>
-    </main>
+
+        {{ govukButton({
+          text: "Add standard set",
+          classes: "govuk-button--primary"
+        }) }}
+      </form>
+    </div>
   </div>
 {% endblock %}
