@@ -4,62 +4,80 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+{% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
+
+{% block beforeContent %}
+  {{ govukBreadcrumbs({
+    items: [
+      {
+        text: "Home"
+      }
+    ]
+  }) }}
+{% endblock %}
 
 {% block content %}
-  {{ appHeading({
-    text: heading,
-    caption: "Submit a git repository for code review"
-  }) }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      {{ appHeading({
+        text: heading,
+        caption: "Submit a git repository for code review"
+      }) }}
 
-  {% if errors %}
-    {{ govukErrorSummary({
-      titleText: "There is a problem",
-      errorList: errors.items
-    }) }}
-  {% endif %}
+      {% if errors %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: errors.items
+        }) }}
+      {% endif %}
 
-  <form method="post" action="/" novalidate>
-    {{ govukInput({
-      label: {
-        text: "Repository URL",
-        classes: "govuk-label--m"
-      },
-      id: "repository-url",
-      name: "repository_url",
-      type: "url",
-      autocomplete: "url",
-      spellcheck: false,
-      classes: "govuk-!-width-two-thirds",
-      errorMessage: (errors.repositoryUrl if errors else null) if errors else null,
-      value: (values.repositoryUrl if values else '') if values else ''
-    }) }}
+      <form method="post" action="/" novalidate>
+        <div class="govuk-form-group">
+          {{ govukInput({
+            label: {
+              text: "Repository URL",
+              classes: "govuk-label--m"
+            },
+            id: "repository-url",
+            name: "repository_url",
+            type: "url",
+            autocomplete: "url",
+            spellcheck: false,
+            classes: "govuk-!-width-two-thirds",
+            errorMessage: (errors.repositoryUrl if errors else null) if errors else null,
+            value: (values.repositoryUrl if values else '') if values else ''
+          }) }}
+        </div>
 
-    {% set standardSetItems = [] %}
-    {% for set in standardSets | default([]) %}
-      {% set standardSetItems = standardSetItems.concat([{
-        value: set._id,
-        text: set.name,
-        checked: false,
-        hint: {
-          html: 'View the <a class="govuk-link" href="' + set.repository_url + '" target="_blank" rel="noopener noreferrer">' + set.name + ' (opens in new tab)</a>'
-        }
-      }]) %}
-    {% endfor %}
+        <div class="govuk-form-group">
+          {% set standardSetItems = [] %}
+          {% for set in standardSets | default([]) %}
+            {% set standardSetItems = standardSetItems.concat([{
+              value: set._id,
+              text: set.name,
+              checked: false,
+              hint: {
+                html: 'View the <a class="govuk-link" href="' + set.repository_url + '" target="_blank" rel="noopener noreferrer">' + set.name + ' (opens in new tab)</a>'
+              }
+            }]) %}
+          {% endfor %}
 
-    {{ govukCheckboxes({
-      name: "standard_sets",
-      fieldset: {
-        legend: {
-          text: "Standards",
-          classes: "govuk-fieldset__legend--m"
-        }
-      },
-      items: standardSetItems
-    }) }}
+          {{ govukCheckboxes({
+            name: "standard_sets",
+            fieldset: {
+              legend: {
+                text: "Standards",
+                classes: "govuk-fieldset__legend--m"
+              }
+            },
+            items: standardSetItems
+          }) }}
+        </div>
 
-    {{ govukButton({
-      text: "Generate code review"
-    }) }}
-  </form>
-
+        {{ govukButton({
+          text: "Generate code review"
+        }) }}
+      </form>
+    </div>
+  </div>
 {% endblock %}

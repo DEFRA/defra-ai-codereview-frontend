@@ -4,124 +4,122 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
-{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
-{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+
+{% block beforeContent %}
+  {{ govukBreadcrumbs({
+    items: [
+      {
+        text: "Home",
+        href: "/"
+      },
+      {
+        text: "Standards",
+        href: "/standards"
+      },
+      {
+        text: "Classifications"
+      }
+    ]
+  }) }}
+{% endblock %}
 
 {% block content %}
-  <div class="govuk-width-container">
-    <main class="govuk-main-wrapper" id="main-content" role="main">
-      {{ govukBreadcrumbs({
-        items: [
-          {
-            text: "Home",
-            href: "/"
-          },
-          {
-            text: "Standards",
-            href: "/standards"
-          },
-          {
-            text: "Classifications"
-          }
-        ]
-      }) }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">Manage Classifications</h1>
+      
+      <p class="govuk-body">Use classifications to:</p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>categorize code review standards by technology or domain</li>
+        <li>organize standards into logical groups</li>
+        <li>filter and search standards more effectively</li>
+      </ul>
+    </div>
+  </div>
 
-      <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-          <h1 class="govuk-heading-l">Manage Classifications</h1>
-          
-          <p class="govuk-body">Use classifications to:</p>
-          <ul class="govuk-list govuk-list--bullet">
-            <li>categorize code review standards by technology or domain</li>
-            <li>organize standards into logical groups</li>
-            <li>filter and search standards more effectively</li>
-          </ul>
-        </div>
-      </div>
+  {% if errors %}
+    {{ govukNotificationBanner({
+      titleText: "There is a problem",
+      type: "error",
+      html: '<ul class="govuk-list govuk-list--bullet govuk-error-message">
+        {% for error in errors %}
+          <li>{{ error.message }}</li>
+        {% endfor %}
+      </ul>'
+    }) }}
+  {% endif %}
 
-      {% if errors %}
-        {{ govukNotificationBanner({
-          titleText: "There is a problem",
-          type: "error",
-          html: '<ul class="govuk-list govuk-list--bullet govuk-error-message">
-            {% for error in errors %}
-              <li>{{ error.message }}</li>
-            {% endfor %}
-          </ul>'
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      {% if classifications and classifications.length > 0 %}
+        {% set tableRows = [] %}
+        {% for classification in classifications %}
+          {% set tableRows = (tableRows.push([
+            {
+              html: '<span class="govuk-!-font-weight-bold">' + classification.name + '</span><br><span class="govuk-hint govuk-!-margin-bottom-0 govuk-!-font-size-16">Created ' + classification.created_at | formatDate("dd/MM/yyyy HH:mm") + '</span>'
+            },
+            {
+              html: '<form method="POST" action="/standards/classifications/' + classification._id + '/delete">
+                ' + govukButton({
+                  text: "Delete",
+                  classes: "govuk-button--warning govuk-!-margin-0",
+                  attributes: {
+                    "data-module": "govuk-button",
+                    "data-prevent-double-click": "true"
+                  }
+                }) + '
+              </form>'
+            }
+          ]), tableRows) %}
+        {% endfor %}
+
+        {{ govukTable({
+          caption: "Current Classifications",
+          captionClasses: "govuk-table__caption--m",
+          firstCellIsHeader: true,
+          head: [
+            {
+              text: "Classification"
+            },
+            {
+              text: "Actions",
+              classes: "govuk-!-width-one-quarter"
+            }
+          ],
+          rows: tableRows
         }) }}
+      {% else %}
+        <p class="govuk-body-l" role="alert">No classifications found. Add your first classification below.</p>
       {% endif %}
+    </div>
+  </div>
 
-      <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-          {% if classifications and classifications.length > 0 %}
-            {% set tableRows = [] %}
-            {% for classification in classifications %}
-              {% set tableRows = (tableRows.push([
-                {
-                  html: '<span class="govuk-!-font-weight-bold">' + classification.name + '</span><br><span class="govuk-hint govuk-!-margin-bottom-0 govuk-!-font-size-16">Created ' + classification.created_at | formatDate("dd/MM/yyyy HH:mm") + '</span>'
-                },
-                {
-                  html: '<form method="POST" action="/standards/classifications/' + classification._id + '/delete">
-                    ' + govukButton({
-                      text: "Delete",
-                      classes: "govuk-button--warning govuk-!-margin-0",
-                      attributes: {
-                        "data-module": "govuk-button",
-                        "data-prevent-double-click": "true"
-                      }
-                    }) + '
-                  </form>'
-                }
-              ]), tableRows) %}
-            {% endfor %}
-
-            {{ govukTable({
-              caption: "Current Classifications",
-              captionClasses: "govuk-table__caption--m",
-              firstCellIsHeader: true,
-              head: [
-                {
-                  text: "Classification"
-                },
-                {
-                  text: "Actions",
-                  classes: "govuk-!-width-one-quarter"
-                }
-              ],
-              rows: tableRows
-            }) }}
-          {% else %}
-            <p class="govuk-body-l" role="alert">No classifications found. Add your first classification below.</p>
-          {% endif %}
+  <div class="govuk-grid-row govuk-!-margin-top-6">
+    <div class="govuk-grid-column-two-thirds">
+      <form method="POST" action="/standards/classifications" novalidate>
+        <div class="govuk-form-group">
+          {{ govukInput({
+            label: {
+              text: "Add new classification",
+              classes: "govuk-label--m",
+              isPageHeading: false
+            },
+            hint: {
+              text: "Enter a unique name for the classification. You can use letters, numbers, spaces, dots, hyphens and hash symbols."
+            },
+            id: "name",
+            name: "name",
+            value: data.name if data.name,
+            errorMessage: errors.name if errors and errors.name
+          }) }}
         </div>
-      </div>
 
-      <div class="govuk-grid-row govuk-!-margin-top-6">
-        <div class="govuk-grid-column-two-thirds">
-          <form method="POST" action="/standards/classifications" novalidate>
-            {{ govukInput({
-              label: {
-                text: "Add new classification",
-                classes: "govuk-label--m",
-                isPageHeading: false
-              },
-              hint: {
-                text: "Enter a unique name for the classification. You can use letters, numbers, spaces, dots, hyphens and hash symbols."
-              },
-              id: "name",
-              name: "name",
-              value: data.name if data.name,
-              errorMessage: errors.name if errors and errors.name
-            }) }}
-
-            {{ govukButton({
-              text: "Add classification",
-              preventDoubleClick: true,
-              classes: "govuk-button--primary"
-            }) }}
-          </form>
-        </div>
-      </div>
-    </main>
+        {{ govukButton({
+          text: "Add classification",
+          preventDoubleClick: true,
+          classes: "govuk-button--primary"
+        }) }}
+      </form>
+    </div>
   </div>
 {% endblock %}
