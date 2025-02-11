@@ -1,93 +1,89 @@
 import { test, expect } from '@playwright/test'
 import { navigateToHome, getGdsComponentText } from './test-helpers/index.js'
 
-test.describe('Home Page - Generate Code Review', () => {
+test.describe('Generate Code Review Journey', () => {
   test.beforeEach(async ({ page }) => {
     await navigateToHome(page)
   })
 
-  test('should have GOV.UK header', async ({ page }) => {
-    // Check for GOV.UK header
-    await expect(page.getByRole('banner')).toBeVisible()
-    await expect(page.getByRole('link', { name: 'GOV.UK' })).toBeVisible()
-
-    // Check service name
-    const serviceName = await getGdsComponentText(
-      page,
-      '.govuk-header__service-name'
-    )
-    await expect(serviceName).toContain('Intelligent Code Reviewer')
-  })
-
-  test('should have the correct page title', async ({ page }) => {
+  test('should have correct page structure and navigation', async ({
+    page
+  }) => {
+    // Page title
     await expect(page).toHaveTitle(/Intelligent Code Reviewer/)
-  })
 
-  test('should display navigation links', async ({ page }) => {
+    // Header structure
+    const header = page.getByRole('banner')
+    await expect(header).toBeVisible()
+    await expect(header.getByRole('link', { name: 'GOV.UK' })).toBeVisible()
+    await expect(
+      getGdsComponentText(page, '.govuk-header__service-name')
+    ).resolves.toContain('Intelligent Code Reviewer')
+
+    // Navigation
     const navigation = page.getByRole('navigation')
-    await expect(
-      navigation.getByRole('link', { name: 'Generate code review' })
-    ).toBeVisible()
-    await expect(
-      navigation.getByRole('link', { name: 'View code reviews' })
-    ).toBeVisible()
-    await expect(
-      navigation.getByRole('link', { name: 'Standards' })
-    ).toBeVisible()
-  })
+    const expectedLinks = [
+      'Generate code review',
+      'View code reviews',
+      'Standards'
+    ]
+    for (const linkText of expectedLinks) {
+      await expect(
+        navigation.getByRole('link', { name: linkText })
+      ).toBeVisible()
+    }
 
-  test('should display main content elements', async ({ page }) => {
-    // Check headings
+    // Main content structure
     await expect(
       page.getByRole('heading', { name: 'Generate Code Review', level: 1 })
     ).toBeVisible()
-
-    // Check descriptive text
     await expect(
       page.getByText('Submit a git repository for code review')
     ).toBeVisible()
+  })
 
-    // Check repository URL input
+  test('should handle form submission with validation', async ({ page }) => {
+    // Form elements visibility
     const repoUrlInput = page.getByLabel('Repository URL')
     await expect(repoUrlInput).toBeVisible()
     await expect(repoUrlInput).toBeEmpty()
 
-    // Check standards section
-    await expect(page.getByRole('group', { name: 'Standards' })).toBeVisible()
+    const standardsGroup = page.getByRole('group', { name: 'Standards' })
+    await expect(standardsGroup).toBeVisible()
 
-    // Check checkboxes and their associated links
-    await expect(
-      page.getByLabel('DEFRA Software Development Standards')
-    ).toBeVisible()
-    await expect(
-      page.getByRole('link', {
-        name: 'DEFRA Software Development Standards (opens in new tab)'
-      })
-    ).toBeVisible()
+    // Standards selection and associated links
+    const standards = [
+      {
+        checkbox: 'DEFRA Software Development Standards',
+        link: 'DEFRA Software Development Standards (opens in new tab)'
+      },
+      {
+        checkbox: 'Test Standards',
+        link: 'Test Standards (opens in new tab)'
+      }
+    ]
 
-    await expect(page.getByLabel('Test Standards')).toBeVisible()
-    await expect(
-      page.getByRole('link', { name: 'Test Standards (opens in new tab)' })
-    ).toBeVisible()
+    for (const standard of standards) {
+      await expect(page.getByLabel(standard.checkbox)).toBeVisible()
+      await expect(
+        page.getByRole('link', { name: standard.link })
+      ).toBeVisible()
+    }
 
-    // Check generate button
-    await expect(
-      page.getByRole('button', { name: 'Generate code review' })
-    ).toBeVisible()
-  })
-
-  test('should have working form submission', async ({ page }) => {
-    const repoUrlInput = page.getByLabel('Repository URL')
+    // Test form submission
     await repoUrlInput.fill('https://github.com/DEFRA/find-ffa-data-ingester')
 
-    // Select both standards
-    await page.getByLabel('DEFRA Software Development Standards').check()
-    await page.getByLabel('Test Standards').check()
+    // Select standards
+    for (const standard of standards) {
+      const checkbox = page.getByLabel(standard.checkbox)
+      await checkbox.check()
+      await expect(checkbox).toBeChecked()
+    }
 
-    // Verify checkboxes are checked
-    await expect(
-      page.getByLabel('DEFRA Software Development Standards')
-    ).toBeChecked()
-    await expect(page.getByLabel('Test Standards')).toBeChecked()
+    // Ready to submit form - not this test though
+    const submitButton = page.getByRole('button', {
+      name: 'Generate code review'
+    })
+    await expect(submitButton).toBeVisible()
   })
 })

@@ -6,11 +6,14 @@
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 
+{% block pageTitle %}Generate Code Review - Intelligent Code Reviewer{% endblock %}
+
 {% block beforeContent %}
   {{ govukBreadcrumbs({
     items: [
       {
-        text: "Home"
+        text: "Home",
+        href: "/"
       }
     ]
   }) }}
@@ -19,10 +22,11 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-      {{ appHeading({
-        text: heading,
-        caption: "Submit a git repository for code review"
-      }) }}
+      <h1 class="govuk-heading-l">
+        Generate Code Review
+      </h1>
+
+      <p class="govuk-body">Submit a git repository for code review</p>
 
       {% if errors %}
         {{ govukErrorSummary({
@@ -32,7 +36,7 @@
       {% endif %}
 
       <form method="post" action="/" novalidate>
-        <div class="govuk-form-group">
+        <div class="govuk-form-group govuk-!-margin-bottom-6">
           {{ govukInput({
             label: {
               text: "Repository URL",
@@ -49,7 +53,7 @@
           }) }}
         </div>
 
-        <div class="govuk-form-group">
+        <div class="govuk-form-group govuk-!-margin-bottom-6">
           {% set standardSetItems = [] %}
           {% for set in standardSets | default([]) %}
             {% set standardSetItems = standardSetItems.concat([{
@@ -75,7 +79,8 @@
         </div>
 
         {{ govukButton({
-          text: "Generate code review"
+          text: "Generate code review",
+          classes: "govuk-button--primary"
         }) }}
       </form>
     </div>

@@ -15,7 +15,9 @@ test.describe('Classifications', () => {
         page.getByRole('heading', { name: 'Manage Classifications' })
       ).toBeVisible()
 
-      // Verify table headers
+      // Verify table headers and structure
+      const table = page.getByRole('table', { name: 'Classifications' })
+      await expect(table).toBeVisible()
       await expect(
         page.getByRole('columnheader', { name: 'Name' })
       ).toBeVisible()
@@ -29,8 +31,9 @@ test.describe('Classifications', () => {
       // Verify existing classifications
       const existingClassifications = ['Javascript', 'Java', 'Node.js', 'C#']
       for (const classification of existingClassifications) {
+        const row = page.getByRole('row', { name: new RegExp(classification) })
         await expect(
-          page.getByRole('cell', { name: classification, exact: true })
+          row.getByRole('cell', { name: classification, exact: true })
         ).toBeVisible()
       }
       await expect(page.getByRole('cell', { name: '.Net' })).not.toBeVisible()
@@ -40,14 +43,22 @@ test.describe('Classifications', () => {
       await page.getByRole('button', { name: 'Add classification' }).click()
 
       // Verify new classification in list
+      const newRow = page.getByRole('row', { name: /.Net/ })
       await expect(
-        page.getByRole('cell', { name: '.Net', exact: true })
+        newRow.getByRole('cell', { name: '.Net', exact: true })
       ).toBeVisible()
 
+      // Verify delete button is accessible
+      const deleteButton = page.getByRole('button', {
+        name: 'Delete .Net classification'
+      })
+      await expect(deleteButton).toHaveAttribute(
+        'aria-label',
+        'Delete .Net classification'
+      )
+
       // Delete the classification
-      await page
-        .getByRole('button', { name: 'Delete .Net classification' })
-        .click()
+      await deleteButton.click()
 
       // Verify deletion
       await expect(page.getByRole('cell', { name: '.Net' })).not.toBeVisible()

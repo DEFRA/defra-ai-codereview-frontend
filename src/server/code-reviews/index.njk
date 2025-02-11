@@ -3,6 +3,8 @@
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
 
+{% block pageTitle %}Code Reviews - Intelligent Code Reviewer{% endblock %}
+
 {% block beforeContent %}
   {{ govukBreadcrumbs({
     items: [
@@ -22,24 +24,22 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">Code Reviews</h1>
       
-      <div class="govuk-body">
-        <p>View previous automated code reviews</p>
-      </div>
+      <p class="govuk-body">View previous automated code reviews</p>
     </div>
   </div>
 
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-      {% if tableRows and tableRows.length > 0 %}
+  {% if tableRows and tableRows.length > 0 %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
         {{ govukTable({
           caption: "Current Code Reviews",
-          captionClasses: "govuk-table__caption--m",
+          captionClasses: "govuk-table__caption--m govuk-!-margin-top-4",
           firstCellIsHeader: false,
           attributes: {
             "aria-label": "List of all code reviews with their status",
             "data-module": "govuk-table"
           },
-          classes: "app-code-reviews-table",
+          classes: "app-code-reviews-table govuk-!-margin-bottom-6",
           head: [
             {
               text: "Code Repository",
@@ -72,11 +72,19 @@
           ],
           rows: tableRows
         }) }}
-      {% else %}
-        <div class="govuk-inset-text" role="region" aria-label="No reviews found">
-          <p class="govuk-body">No code reviews found. Use the button above to start a new code review.</p>
-        </div>
-      {% endif %}
+      </div>
     </div>
-  </div>
+  {% else %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-inset-text" role="region" aria-label="No reviews found">
+          <h2 class="govuk-heading-m">No reviews found</h2>
+          <p class="govuk-body">Generate a new code review to get started.</p>
+          <p class="govuk-body">
+            <a href="/" class="govuk-link">Generate a code review</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  {% endif %}
 {% endblock %} 

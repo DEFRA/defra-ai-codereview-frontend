@@ -5,6 +5,8 @@
 {% from "govuk/components/tag/macro.njk" import govukTag %}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 
+{% block pageTitle %}Standards Management - Intelligent Code Reviewer{% endblock %}
+
 {% block beforeContent %}
   {{ govukBreadcrumbs({
     items: [
@@ -84,25 +86,27 @@
     </div>
 
     <div class="govuk-grid-column-one-third">
-      <aside class="app-related-items" role="complementary">
-        <h2 class="govuk-heading-m">Related links</h2>
-        <ul class="govuk-list">
-          <li>
-            <a class="govuk-link" href="#">
-              Defra development standards
-            </a>
-          </li>
-          <li>
-            <a class="govuk-link" href="#">
-              Code review guidelines
-            </a>
-          </li>
-          <li>
-            <a class="govuk-link" href="#">
-              Technology standards
-            </a>
-          </li>
-        </ul>
+      <aside class="govuk-related-navigation" role="complementary">
+        <h2 class="govuk-heading-m govuk-!-margin-bottom-2">Related links</h2>
+        <nav role="navigation" aria-labelledby="related-nav-heading">
+          <ul class="govuk-related-navigation__list govuk-!-padding-left-3">
+            <li class="govuk-related-navigation__item govuk-!-margin-bottom-1">
+              <a class="govuk-link" href="#">
+                Defra development standards
+              </a>
+            </li>
+            <li class="govuk-related-navigation__item govuk-!-margin-bottom-1">
+              <a class="govuk-link" href="#">
+                Code review guidelines
+              </a>
+            </li>
+            <li class="govuk-related-navigation__item">
+              <a class="govuk-link" href="#">
+                Technology standards
+              </a>
+            </li>
+          </ul>
+        </nav>
       </aside>
     </div>
   </div>
