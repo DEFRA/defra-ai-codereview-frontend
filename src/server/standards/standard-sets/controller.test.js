@@ -10,14 +10,14 @@ import {
 describe('Standard Sets Controller', () => {
   const request = {
     logger: {
-      error: jest.fn()
+      error: jest.fn(),
+      info: jest.fn()
     }
   }
 
   const h = {
     view: jest.fn().mockReturnValue({ code: jest.fn() }),
-    redirect: jest.fn(),
-    code: jest.fn()
+    redirect: jest.fn()
   }
 
   beforeEach(() => {
@@ -83,7 +83,10 @@ describe('Standard Sets Controller', () => {
     }
 
     it('should create standard set and redirect on success', async () => {
-      global.fetch.mockResolvedValue({ ok: true })
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve('{"success": true}')
+      })
 
       await createStandardSet({ ...request, payload: validPayload }, h)
 
@@ -92,9 +95,14 @@ describe('Standard Sets Controller', () => {
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
           },
-          body: JSON.stringify(validPayload)
+          body: JSON.stringify({
+            name: validPayload.name,
+            repository_url: validPayload.repository_url,
+            custom_prompt: validPayload.custom_prompt
+          })
         }
       )
       expect(h.redirect).toHaveBeenCalledWith('/standards/standard-sets')
@@ -107,8 +115,8 @@ describe('Standard Sets Controller', () => {
 
       await createStandardSet({ ...request, payload: invalidPayload }, h)
 
-      expect(h.view).toHaveBeenCalledWith('standards/standard-sets/create', {
-        pageTitle: 'Add Standard Set',
+      expect(h.view).toHaveBeenCalledWith('standards/standard-sets/index', {
+        pageTitle: 'Manage Standard Sets',
         navigation: expect.any(Object),
         errors: {
           name: {
@@ -123,26 +131,42 @@ describe('Standard Sets Controller', () => {
         values: {
           name: undefined,
           repository_url: undefined,
-          custom_prompt: undefined
-        }
+          custom_prompt: ''
+        },
+        standardSets: []
       })
       expect(mockViewResponse.code).toHaveBeenCalledWith(400)
     })
 
     it('should handle API errors', async () => {
+      const errorMessage = 'Server error'
       global.fetch.mockResolvedValue({
         ok: false,
-        status: 500
+        status: 500,
+        text: () => Promise.resolve(JSON.stringify({ message: errorMessage }))
       })
+
+      const mockViewResponse = { code: jest.fn() }
+      h.view.mockReturnValue(mockViewResponse)
 
       await createStandardSet({ ...request, payload: validPayload }, h)
 
-      expect(h.view).toHaveBeenCalledWith('standards/standard-sets/create', {
-        pageTitle: 'Add Standard Set',
+      expect(h.view).toHaveBeenCalledWith('standards/standard-sets/index', {
+        pageTitle: 'Manage Standard Sets',
         navigation: expect.any(Object),
-        error: 'Unable to create standard set. Please try again later.',
-        values: validPayload
+        errors: {
+          api: {
+            message: errorMessage
+          }
+        },
+        values: {
+          name: validPayload.name,
+          repository_url: validPayload.repository_url,
+          custom_prompt: validPayload.custom_prompt
+        },
+        standardSets: []
       })
+      expect(mockViewResponse.code).toHaveBeenCalledWith(400)
     })
   })
 

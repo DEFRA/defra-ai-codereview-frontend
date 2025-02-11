@@ -34,18 +34,6 @@ export async function getStandardSets(request, h) {
 }
 
 /**
- * Show create standard set form
- * @param {import('@hapi/hapi').Request} request
- * @param {import('@hapi/hapi').ResponseToolkit} h
- */
-export function showCreateStandardSet(request, h) {
-  return h.view('standards/standard-sets/create', {
-    pageTitle: 'Add Standard Set',
-    navigation: buildNavigation(request)
-  })
-}
-
-/**
  * Create a new standard set
  * @param {import('@hapi/hapi').Request} request
  * @param {import('@hapi/hapi').ResponseToolkit} h
@@ -54,7 +42,7 @@ export async function createStandardSet(request, h) {
   const data = {
     name: request.payload.name,
     repository_url: request.payload.repository_url,
-    custom_prompt: request.payload.custom_prompt
+    custom_prompt: request.payload.custom_prompt || ''
   }
 
   // Validate input
@@ -74,11 +62,12 @@ export async function createStandardSet(request, h) {
 
   if (Object.keys(errors).length > 0) {
     return h
-      .view('standards/standard-sets/create', {
-        pageTitle: 'Add Standard Set',
+      .view('standards/standard-sets/index', {
+        pageTitle: 'Manage Standard Sets',
         navigation: buildNavigation(request),
         errors,
-        values: data
+        values: data,
+        standardSets: []
       })
       .code(400)
   }
@@ -89,25 +78,80 @@ export async function createStandardSet(request, h) {
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
         },
         body: JSON.stringify(data)
       }
     )
 
+    const responseText = await response.text()
+    let errorData = {}
+
+    try {
+      errorData = JSON.parse(responseText)
+    } catch (e) {
+      request.logger.error('Failed to parse API response', {
+        error: e.message,
+        responseText
+      })
+    }
+
     if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`)
+      request.logger.error('Failed to create standard set', {
+        status: response.status,
+        error: errorData.message || 'Unknown error'
+      })
+
+      // Handle API validation errors
+      if (response.status === 400 && errorData.errors) {
+        return h
+          .view('standards/standard-sets/index', {
+            pageTitle: 'Manage Standard Sets',
+            navigation: buildNavigation(request),
+            errors: errorData.errors,
+            values: data,
+            standardSets: []
+          })
+          .code(400)
+      }
+
+      // Handle other API errors
+      return h
+        .view('standards/standard-sets/index', {
+          pageTitle: 'Manage Standard Sets',
+          navigation: buildNavigation(request),
+          errors: {
+            api: {
+              message:
+                errorData.message ||
+                'Unable to create standard set. Please try again later.'
+            }
+          },
+          values: data,
+          standardSets: []
+        })
+        .code(400)
     }
 
     return h.redirect('/standards/standard-sets')
   } catch (err) {
-    request.logger.error('Error creating standard set:', err)
-    return h.view('standards/standard-sets/create', {
-      pageTitle: 'Add Standard Set',
-      navigation: buildNavigation(request),
-      error: 'Unable to create standard set. Please try again later.',
-      values: data
+    request.logger.error('Error creating standard set', {
+      error: err.message
     })
+    return h
+      .view('standards/standard-sets/index', {
+        pageTitle: 'Manage Standard Sets',
+        navigation: buildNavigation(request),
+        errors: {
+          api: {
+            message: 'Unable to create standard set. Please try again later.'
+          }
+        },
+        values: data,
+        standardSets: []
+      })
+      .code(500)
   }
 }
 
@@ -139,4 +183,16 @@ export async function deleteStandardSet(request, h) {
       message: 'Unable to delete standard set. Please try again later.'
     })
   }
+}
+
+/**
+ * Show the create standard set form
+ * @param {import('@hapi/hapi').Request} request
+ * @param {import('@hapi/hapi').ResponseToolkit} h
+ */
+export function showCreateStandardSet(request, h) {
+  return h.view('standards/standard-sets/create', {
+    pageTitle: 'Add Standard Set',
+    navigation: buildNavigation(request)
+  })
 }

@@ -4,6 +4,7 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
 
 {% block beforeContent %}
   {{ govukBreadcrumbs({
@@ -38,15 +39,22 @@
   </div>
 
   {% if errors %}
-    {{ govukNotificationBanner({
-      titleText: "There is a problem",
-      type: "error",
-      html: '<ul class="govuk-list govuk-list--bullet govuk-error-message">
-        {% for error in errors %}
-          <li>{{ error.message }}</li>
-        {% endfor %}
-      </ul>'
-    }) }}
+    {% set errorMessages = [] %}
+    {% for key, error in errors %}
+      {% if error.message %}
+        {% set errorMessages = (errorMessages.push(error.message), errorMessages) %}
+      {% endif %}
+    {% endfor %}
+
+    {% if errorMessages.length > 0 %}
+      {{ govukNotificationBanner({
+        titleText: "There is a problem",
+        type: "error",
+        html: '<ul class="govuk-list govuk-list--bullet govuk-error-message">' + 
+          errorMessages | join('</li><li>') +
+          '</ul>'
+      }) }}
+    {% endif %}
   {% endif %}
 
   <div class="govuk-grid-row">
@@ -98,7 +106,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">Create Standard Set</h1>
       <form method="POST" action="/standards/standard-sets" novalidate>
-        <div class="govuk-form-group">
+        <div class="govuk-form-group {% if errors.name %}govuk-form-group--error{% endif %}">
           {{ govukInput({
             label: {
               text: "Name",
@@ -109,12 +117,14 @@
             },
             id: "name",
             name: "name",
-            value: data.name if data.name,
-            errorMessage: errors.name if errors and errors.name
+            value: values.name if values.name,
+            errorMessage: {
+              text: errors.name.message if errors.name
+            } if errors.name
           }) }}
         </div>
 
-        <div class="govuk-form-group">
+        <div class="govuk-form-group {% if errors.repository_url %}govuk-form-group--error{% endif %}">
           {{ govukInput({
             label: {
               text: "Repository URL",
@@ -127,8 +137,10 @@
             name: "repository_url",
             type: "url",
             spellcheck: false,
-            value: data.repository_url if data.repository_url,
-            errorMessage: errors.repository_url if errors and errors.repository_url
+            value: values.repository_url if values.repository_url,
+            errorMessage: {
+              text: errors.repository_url.message if errors.repository_url
+            } if errors.repository_url
           }) }}
         </div>
 
