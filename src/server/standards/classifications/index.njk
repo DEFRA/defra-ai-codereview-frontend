@@ -56,19 +56,32 @@
         {% for classification in classifications %}
           {% set tableRows = (tableRows.push([
             {
-              html: '<span class="govuk-!-font-weight-bold">' + classification.name + '</span><br><span class="govuk-hint govuk-!-margin-bottom-0 govuk-!-font-size-16">Created ' + classification.created_at | formatDate("dd/MM/yyyy HH:mm") + '</span>'
+              text: classification.name,
+              attributes: {
+                "data-label": "Name"
+              }
             },
             {
-              html: '<form method="POST" action="/standards/classifications/' + classification._id + '/delete">
+              html: '<time datetime="' + classification.created_at | formatDate("yyyy-MM-dd HH:mm") + '">' + classification.created_at | formatDate("d MMMM yyyy 'at' HH:mm") + '</time>',
+              attributes: {
+                "data-label": "Creation date"
+              }
+            },
+            {
+              html: '<form method="POST" action="/standards/classifications/' + classification._id + '/delete" class="app-delete-classification">
                 ' + govukButton({
                   text: "Delete",
                   classes: "govuk-button--warning govuk-!-margin-0",
                   attributes: {
                     "data-module": "govuk-button",
-                    "data-prevent-double-click": "true"
+                    "data-prevent-double-click": "true",
+                    "aria-label": "Delete " + classification.name + " classification"
                   }
                 }) + '
-              </form>'
+              </form>',
+              attributes: {
+                "data-label": "Actions"
+              }
             }
           ]), tableRows) %}
         {% endfor %}
@@ -76,14 +89,36 @@
         {{ govukTable({
           caption: "Current Classifications",
           captionClasses: "govuk-table__caption--m",
-          firstCellIsHeader: true,
+          firstCellIsHeader: false,
+          attributes: {
+            "aria-label": "Classifications list",
+            "data-module": "govuk-table"
+          },
+          classes: "app-classifications-table",
           head: [
             {
-              text: "Classification"
+              text: "Name",
+              attributes: {
+                "aria-sort": "none",
+                scope: "col"
+              },
+              classes: "govuk-!-width-one-third"
+            },
+            {
+              text: "Creation date",
+              attributes: {
+                "aria-sort": "none",
+                scope: "col"
+              },
+              classes: "govuk-!-width-one-third"
             },
             {
               text: "Actions",
-              classes: "govuk-!-width-one-quarter"
+              attributes: {
+                "aria-sort": "none",
+                scope: "col"
+              },
+              classes: "govuk-!-width-one-third"
             }
           ],
           rows: tableRows
