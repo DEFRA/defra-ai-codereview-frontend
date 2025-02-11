@@ -21,7 +21,53 @@ globs: tests/*.js
 - Test error states and validation messages
 - Verify error summary links focus corresponding fields
 - Test back links and navigation patterns
-- Check responsive behavior at GDS breakpoints
+
+### Common GDS Component Selectors
+- Details Component:
+  ```javascript
+  // Target summary text
+  page.locator('.govuk-details__summary-text', { hasText: 'Summary Text' })
+  // Target content
+  page.locator('.govuk-details__text').filter({ hasText: 'Content Text' })
+  ```
+- Table Component:
+  ```javascript
+  // Target table by caption
+  page.getByRole('table', { name: 'Caption Text' })
+  // Target specific row
+  page.getByRole('row', { name: 'Row Content' })
+  // Target elements within a row (scoped selectors)
+  const row = page.getByRole('row', { name: 'Row Content' });
+  row.locator('.govuk-tag')  // Only finds tags within this row
+  ```
+- Tags:
+  ```javascript
+  // Target tag by text
+  page.locator('.govuk-tag', { hasText: 'Tag Text' })
+  // Check for color variants
+  await expect(tag).toHaveClass(/govuk-tag--blue/)  // Blue variant
+  await expect(tag).toHaveClass(/govuk-tag--green/) // Green variant
+  await expect(tag).toHaveClass(/govuk-tag--red/)   // Red variant
+  ```
+- Buttons:
+  ```javascript
+  page.getByRole('button', { name: 'Button Text' })
+  ```
+
+### GDS Component Testing Patterns
+- Details Component:
+  - Test summary text visibility
+  - Test expand/collapse functionality
+  - Verify content rendering
+  - Check keyboard accessibility
+- Tables:
+  - Verify caption and headers
+  - Test responsive behavior
+  - Check cell content
+- Form Components:
+  - Test validation messages
+  - Check error summary links
+  - Verify hint text
 
 ## Accessibility Testing
 - Integrate axe-core for automated accessibility checks
@@ -39,7 +85,6 @@ globs: tests/*.js
 ## Best Practices
 - Test components in both default and error states
 - Verify form validation messages
-- Test responsive layouts at GDS breakpoints
 - Ensure proper heading hierarchy
 - Write focused, atomic tests
 
