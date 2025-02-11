@@ -1,23 +1,34 @@
 @use "govuk-frontend" as *;
 
-// Example namespaced custom element style CSS classes
-
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+// Set up the basic page structure
+html {
+  height: 100%;
 }
 
-.govuk-main-wrapper {
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main-content {
   flex: 1 0 auto;
 }
 
-.govuk-footer {
-  margin-top: auto;
-}
-
+// Example namespaced custom element style CSS classes
 .app-main-wrapper {
   display: block;
   padding-top: govuk-spacing(4);
   padding-bottom: govuk-spacing(3);
+}
+
+// Sticky footer that works with GOV.UK template structure
+.govuk-footer {
+  margin-top: auto;
+}
+
+.govuk-width-container {
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
 }

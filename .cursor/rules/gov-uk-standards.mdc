@@ -2,6 +2,7 @@
 description: GOV.UK Frontend
 globs: *.njk, *.js
 ---
+
 # GOV UK Frontend
 
 ## Tech Stack
@@ -19,6 +20,34 @@ globs: *.njk, *.js
 - Use govuk-width-container for page layout
 - Use govuk-main-wrapper for main content
 - Use govuk-grid-row and govuk-grid-column-* for grid layouts
+
+## Layout Patterns
+- Use flexbox for sticky footer layout:
+  ```scss
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  #main-content {
+    flex: 1 0 auto;
+  }
+  
+  .govuk-footer {
+    margin-top: auto;
+  }
+  ```
+- Width container constraints:
+  ```scss
+  .govuk-width-container {
+    max-width: 960px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  ```
+- Use govuk-spacing() function for consistent spacing
+- Maintain proper padding in app-main-wrapper
 
 ## Component Usage
 - Use GDS components with data-module="govuk-button" where needed
