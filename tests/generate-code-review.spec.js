@@ -78,7 +78,7 @@ test.describe('Home Page - Generate Code Review', () => {
 
   test('should have working form submission', async ({ page }) => {
     const repoUrlInput = page.getByLabel('Repository URL')
-    await repoUrlInput.fill('https://github.com/test/repo')
+    await repoUrlInput.fill('https://github.com/DEFRA/find-ffa-data-ingester')
 
     // Select both standards
     await page.getByLabel('DEFRA Software Development Standards').check()

@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('Code Reviews', () => {
+  const REPOSITORY = 'https://github.com/DEFRA/find-ffa-data-ingester'
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
   })
@@ -12,7 +14,7 @@ test.describe('Code Reviews', () => {
       await page.getByRole('textbox', { name: 'Repository URL' }).click()
       await page
         .getByRole('textbox', { name: 'Repository URL' })
-        .fill('http://some-repo')
+        .fill(REPOSITORY)
       await page.getByRole('textbox', { name: 'Repository URL' }).press('Tab')
       await page.getByRole('checkbox', { name: 'Test Standards' }).check()
       await page.getByRole('button', { name: 'Generate code review' }).click()
@@ -24,9 +26,7 @@ test.describe('Code Reviews', () => {
       await expect(
         page.getByRole('status', { name: 'Review status: Started' })
       ).toBeVisible()
-      await expect(
-        page.getByRole('link', { name: 'http://some-repo' })
-      ).toBeVisible()
+      await expect(page.getByRole('link', { name: REPOSITORY })).toBeVisible()
       await expect(page.getByText('No compliance reports')).toBeVisible()
 
       await page
@@ -54,7 +54,7 @@ test.describe('Code Reviews', () => {
       const firstDataRow = page.getByRole('row').nth(1)
       await expect(firstDataRow).toBeVisible()
       await expect(
-        firstDataRow.getByRole('link', { name: 'http://some-repo' })
+        firstDataRow.getByRole('link', { name: REPOSITORY })
       ).toBeVisible()
       await expect(
         firstDataRow.getByRole('status', { name: 'Review status: Started' })
