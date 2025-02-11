@@ -4,59 +4,47 @@ globs: tests/*.js
 ---
 # Playwright Testing Standards
 
-## Test File Structure
-- Test files should be placed in the `/tests` directory
-- Use `.spec.js` extension for test files
+## Testing Philosophy
+- Test user-visible behavior, not implementation details
+- Keep tests isolated and independent
+- Mock external dependencies and network calls
+- Use data-test attributes sparingly, prefer role-based selectors
+
+## Test Structure
+- Place tests in `/tests` directory with `.spec.js` extension
 - Group related tests using `test.describe()`
-- Use descriptive test names that explain the behavior being tested
-- Add comments to explain each step
-
-## Writing Tests
-- Focus on testing user-visible behavior, not implementation details
-- Ensure tests are reproducible and isolated
-- Use test.beforeEach() for common setup steps
-- Avoid sharing state between tests
-- Follow a journey-based approach for complex flows
-- Always use ES Module syntax with named imports
-- Prefer GOV.UK Frontend class locators when testing GDS components  
-
-## Locators
-- Prefer GOV.UK Frontend class locators when testing GDS components  
-- Next, prefer user-facing attributes, including:
-   - role-based locators: `page.getByRole('button', { name: 'Submit' })`
-   - label-based locators: `page.getByLabel('User Name')`
-   - text-based locators: `page.getByText('Welcome, John!')`
-   - Avoid test IDs unless absolutely necessary
-
-## Assertions
-- Use clear, specific assertions
-- Verify visibility: `await expect(element).toBeVisible()`
-- Check content: `await expect(element).toContainText('expected text')`
-- Validate page titles: `await expect(page).toHaveTitle(/Title Pattern/)`
+- Use `test.beforeEach()` for common setup
+- Clear test naming: "should <expected behavior> when <condition>"
 
 ## GDS Component Testing
-- Use proper GDS class names for components
-- Test component hierarchy (e.g., details within table row
-- Always check if GDS components are visible before interacting
-- Use appropriate waiting strategies for dynamic content
-- Test component state transitions:
-  - Verify initial/default state before interaction
-  - Test interaction behavior
-  - Verify final state after interaction
-- For Details components:
-  - Check initial collapsed state (content hidden)
-  - Click summary element, not the details container
-  - Verify 'open' attribute and content visibility
-  - Test collapse behavior
+- Use role-based selectors: `getByRole('button', { name: 'Continue' })`
+- Test error states and validation messages
+- Verify error summary links focus corresponding fields
+- Test back links and navigation patterns
+- Check responsive behavior at GDS breakpoints
 
-## Test Data Management
-- Use constants for test data
-- Avoid hardcoding IDs or dynamic values
-- Use regular expressions for flexible matching
+## Accessibility Testing
+- Integrate axe-core for automated accessibility checks
+- Test keyboard navigation flows
+- Verify screen reader announcements
+- Test color contrast compliance
+- Check ARIA attributes and roles
+
+## Network and Data Handling
+- Mock external API calls using page.route()
+- Use test data fixtures for consistent state
+- Reset database/state between tests
+- Handle authentication consistently
+
+## Best Practices
+- Test components in both default and error states
+- Verify form validation messages
+- Test responsive layouts at GDS breakpoints
+- Ensure proper heading hierarchy
+- Write focused, atomic tests
 
 ## Performance Considerations
-- Keep tests focused and minimal
-- Avoid unnecessary assertions
-- Clean up resources after tests
-
-
+- Minimize test setup/teardown overhead
+- Reuse authentication state where possible
+- Use test.parallel() for independent tests
+- Implement proper waiting strategies
