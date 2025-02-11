@@ -15,6 +15,7 @@ globs: tests/*.js
 - Group related tests using `test.describe()`
 - Use `test.beforeEach()` for common setup
 - Clear test naming: "should <expected behavior> when <condition>"
+- Always use ES Module syntax with named imports
 
 ## GDS Component Testing
 - Use role-based selectors: `getByRole('button', { name: 'Continue' })`

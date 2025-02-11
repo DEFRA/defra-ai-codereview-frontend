@@ -2,7 +2,6 @@
 description: GOV.UK Frontend
 globs: *.njk, *.js
 ---
-
 # GOV UK Frontend
 
 ## Tech Stack
@@ -18,7 +17,7 @@ globs: *.njk, *.js
   - content: Main content area
   - beforeContent: For breadcrumbs and navigation
 - Use govuk-width-container for page layout
-- Use govuk-main-wrapper for main content
+- Base template provides app-main-wrapper (custom wrapper that replaces govuk-main-wrapper)
 - Use govuk-grid-row and govuk-grid-column-* for grid layouts
 
 ## Layout Patterns
@@ -30,7 +29,7 @@ globs: *.njk, *.js
     flex-direction: column;
   }
   
-  #main-content {
+  .app-main-content {
     flex: 1 0 auto;
   }
   
@@ -48,6 +47,7 @@ globs: *.njk, *.js
   ```
 - Use govuk-spacing() function for consistent spacing
 - Maintain proper padding in app-main-wrapper
+- Follow BEM naming convention with app- prefix for custom components
 
 ## Component Usage
 - Use GDS components with data-module="govuk-button" where needed
