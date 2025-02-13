@@ -48,11 +48,11 @@ The interface must follow GOV.UK standards and style and use GDS components. It 
 
 - Update the `/standards/standard-sets` page to change the standard set name for each standard listed in the table to be clickable.  The link should go to the `/standards/standard-sets/{id}` page, passing the standard set id for each row in the table.
 
-## Error Handling for Invalid/Unknown IDs**
+## Error Handling for API calls
 
-• If an invalid or unknown ID is provided, the page should display an error message "Unable to fetch standard set details. Please try again later." in a GDS Error Summary Component
+If an invalid or unknown ID is provided, the page should display an error message "Unable to fetch standard set details. Please try again later." in a GDS Error Summary Component (`govuk-error-summary`)
 
-# APIS
+## APIS
 #### Standard Set Data:
 * Endpoint: `GET /api/v1/standard-sets/{standard_set_id}`
 * Usage: Retrieves the standard set details including the name, repository URL, custom prompt, and an array of standards.

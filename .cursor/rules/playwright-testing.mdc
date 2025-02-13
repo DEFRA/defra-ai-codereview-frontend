@@ -5,99 +5,100 @@ globs: tests/*.js
 # Playwright Testing Rules
 
 ## Testing Philosophy
-- Test user-visible behavior, not implementation details
-- Keep tests isolated and independent
-- Focus on end-to-end user journeys
-- Test server-rendered content and interactions
+- Focus on user-visible behavior and outcomes rather than internal implementation details.
+- Keep tests isolated, independent, and reflective of end-to-end user journeys.
+- Test server-rendered content and interactive behaviors from a user's perspective.
+- Ensure tests remain robust by avoiding strict mode locator violations through specific and scoped selectors.
 
 ## Testing Strategy
 
 ### Element Scoping and Selectors
-- Always scope element checks to their containing parent
-- Use table rows as scopes for row content
-- Use `filter()` with `has:` to find specific containers
-- Avoid global page-level selectors when elements are nested
+- Always scope element checks to their containing parent to avoid matching multiple elements.
+- Use relative selectors and `:has()` filters to narrow down to specific instances (e.g., table rows, details components).
+- Refine selectors with regex for whitespace and exact text when needed.
+- Avoid global page-level selectors for nested elements.
 
 #### Selector Priority
-1. Role-based with exact text: `getByRole('button', { name: 'Submit', exact: true })`
-2. ARIA labels: `getByLabel('Search')`
-3. Component-specific classes with text: `locator('.govuk-details__summary-text', { hasText: 'Details' })`
-4. Generic text matching as last resort: `getByText('Content')`
+1. Role-based selectors with exact text, e.g., `getByRole('button', { name: 'Submit', exact: true })`
+2. ARIA label selectors, e.g., `getByLabel('Search')`
+3. Component-specific class selectors with context filtering, e.g., `locator('.govuk-details__summary-text', { hasText: /Summary Text/ })`
+4. Scoped locators using `:has()` and `filter()` for parent-child relationships.
+5. Generic text matching as the last resort, e.g., `getByText('Content')`
 
 ### State and Interaction Testing
-- Test both initial and changed states
-- Verify all interactive behaviors
-- Test keyboard interactions
-- Check attribute changes after interactions
-- Test components in both default and error states
+- Verify both initial and changed states of interactive components.
+- Test interactive behaviors like clicking to expand/collapse a details component and verify resulting state changes (e.g., checking for the `open` attribute).
+- Test keyboard interactions, attribute changes, and error states.
+- Ensure tests cover both default views and dynamic transitions.
 
 ## Test Structure
-- Place tests in `/tests` directory with `.spec.js` extension
-- Group related tests using `test.describe()`
-- Use `test.beforeEach()` for common setup
-- Clear test naming: "should <expected behavior> when <condition>"
-- Always use ES Module syntax with named imports
+- Place tests in the `/tests` directory with a `.spec.js` extension.
+- Group related tests using `test.describe()`.
+- Use `test.beforeEach()` for common setup steps.
+- Write clear, descriptive test names (e.g., "should display error message when API fails").
+- Always use ES Module syntax with named imports (e.g. `import { test, expect } from '@playwright/test';`).
 
 ## GDS Component Testing
 
 ### Common GDS Component Selectors
-- Details Component:
+- **Details Component:**
   ```javascript
-  // Target summary text
-  page.locator('.govuk-details__summary-text', { hasText: 'Summary Text' })
-  // Target content
-  page.locator('.govuk-details__text').filter({ hasText: 'Content Text' })
+  // Target summary text within a details component
+  page.locator('span.govuk-details__summary-text', { hasText: /Summary Text/ });
+  // Target content within the details component
+  page.locator('div.govuk-details__text').filter({ hasText: /Content Text/ });
   ```
-- Table Component:
+- **Table Component:**
   ```javascript
-  // Target table by caption
-  page.getByRole('table', { name: 'Caption Text' })
-  // Target specific row
-  page.getByRole('row', { name: 'Row Content' })
-  // Target elements within a row (scoped selectors)
+  // Target table by accessible caption or role
+  page.getByRole('table', { name: 'Caption Text' });
+  // Target a specific row using role and text
+  page.getByRole('row', { name: 'Row Content' });
+  // Use scoped selectors within a row
   const row = page.getByRole('row', { name: 'Row Content' });
-  row.locator('.govuk-tag')  // Only finds tags within this row
+  row.locator('.govuk-tag');
   ```
-- Tags:
+- **Tags:**
   ```javascript
-  // Target tag by text
-  page.locator('.govuk-tag', { hasText: 'Tag Text' })
-  // Check for color variants
-  await expect(tag).toHaveClass(/govuk-tag--blue/)  // Blue variant
-  await expect(tag).toHaveClass(/govuk-tag--green/) // Green variant
-  await expect(tag).toHaveClass(/govuk-tag--red/)   // Red variant
+  // Target a tag with specific text
+  page.locator('.govuk-tag', { hasText: 'Tag Text' });
+  // Verify tag color variants with regex matching
+  await expect(tag).toHaveClass(/govuk-tag--blue/);
+  await expect(tag).toHaveClass(/govuk-tag--green/);
+  await expect(tag).toHaveClass(/govuk-tag--red/);
   ```
-- Buttons:
+- **Buttons:**
   ```javascript
-  page.getByRole('button', { name: 'Button Text' })
+  page.getByRole('button', { name: 'Button Text' });
   ```
 
 ### GDS Component Testing Patterns
-- Details Component:
-  - Test summary text visibility
-  - Test expand/collapse functionality
-  - Verify content rendering
-  - Check keyboard accessibility
-- Tables:
-  - Verify caption and headers
-  - Test responsive behavior
-  - Check cell content
-- Form Components:
-  - Test validation messages
-  - Check error summary links
-  - Verify hint text
+- **Details Component:**
+  - Test summary text visibility.
+  - Test expand/collapse functionality by clicking the summary and asserting the open attribute.
+  - Verify that the expanded content renders the expected text.
+  - Include keyboard accessibility tests.
+- **Tables:**
+  - Verify the presence of captions, headers, and cell content.
+  - Check responsive behavior using scoped selectors for rows.
+- **Form Components:**
+  - Test validation messages and error summaries.
+  - Verify correct display of hint texts and input states.
 
-## Accessibility Testing
-- Integrate axe-core for automated accessibility checks
-- Test keyboard navigation flows
-- Verify screen reader announcements
-- Test color contrast compliance
-- Check ARIA attributes and roles
+### Accessibility Testing
+- Integrate axe-core (e.g., using `@axe-core/playwright`) to run automated accessibility scans.
+- Test keyboard navigation flows and focus management.
+- Verify that screen reader announcements are correct.
+- Check for meeting color contrast standards and proper ARIA attributes.
+- Example:
+  ```javascript
+  import AxeBuilder from '@axe-core/playwright';
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+  ```
 
-## Server-Side Testing Considerations
-- Test complete user journeys
-- Verify server-rendered content
-- Test form submissions and redirects
-- Check error pages and status codes
-- Verify session handling
-- Test navigation flows
+### Server-Side Testing Considerations
+- Test complete user journeys including form submissions, redirects, and session handling.
+- Verify that server-rendered content is correct.
+- Include tests for error pages and status codes.
+- Ensure that navigation flows are smooth and predictable across the application.
