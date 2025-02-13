@@ -2,13 +2,34 @@
 description: Playwright Testing
 globs: tests/*.js
 ---
-# Playwright Testing Standards
+# Playwright Testing Rules
 
 ## Testing Philosophy
 - Test user-visible behavior, not implementation details
 - Keep tests isolated and independent
 - Focus on end-to-end user journeys
 - Test server-rendered content and interactions
+
+## Testing Strategy
+
+### Element Scoping and Selectors
+- Always scope element checks to their containing parent
+- Use table rows as scopes for row content
+- Use `filter()` with `has:` to find specific containers
+- Avoid global page-level selectors when elements are nested
+
+#### Selector Priority
+1. Role-based with exact text: `getByRole('button', { name: 'Submit', exact: true })`
+2. ARIA labels: `getByLabel('Search')`
+3. Component-specific classes with text: `locator('.govuk-details__summary-text', { hasText: 'Details' })`
+4. Generic text matching as last resort: `getByText('Content')`
+
+### State and Interaction Testing
+- Test both initial and changed states
+- Verify all interactive behaviors
+- Test keyboard interactions
+- Check attribute changes after interactions
+- Test components in both default and error states
 
 ## Test Structure
 - Place tests in `/tests` directory with `.spec.js` extension
@@ -18,10 +39,6 @@ globs: tests/*.js
 - Always use ES Module syntax with named imports
 
 ## GDS Component Testing
-- Use role-based selectors: `getByRole('button', { name: 'Continue' })`
-- Test error states and validation messages
-- Verify error summary links focus corresponding fields
-- Test back links and navigation patterns
 
 ### Common GDS Component Selectors
 - Details Component:
@@ -84,15 +101,3 @@ globs: tests/*.js
 - Check error pages and status codes
 - Verify session handling
 - Test navigation flows
-
-## Best Practices
-- Test components in both default and error states
-- Verify form validation messages
-- Ensure proper heading hierarchy
-- Test real user journeys end-to-end
-
-## Performance Considerations
-- Minimize test setup/teardown overhead
-- Reuse authentication state where possible
-- Use test.parallel() for independent tests
-- Implement proper waiting strategies
