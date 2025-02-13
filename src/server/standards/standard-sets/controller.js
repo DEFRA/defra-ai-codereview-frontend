@@ -196,3 +196,72 @@ export function showCreateStandardSet(request, h) {
     navigation: buildNavigation(request)
   })
 }
+
+/**
+ * Get details for a specific standard set
+ * @param {import('@hapi/hapi').Request} request
+ * @param {import('@hapi/hapi').ResponseToolkit} h
+ */
+export async function getStandardSetDetails(request, h) {
+  const { id } = request.params
+
+  try {
+    const [standardSetResponse, classificationsResponse] = await Promise.all([
+      fetch(`${config.get('apiBaseUrl')}/api/v1/standard-sets/${id}`),
+      fetch(`${config.get('apiBaseUrl')}/api/v1/classifications`)
+    ])
+
+    if (!standardSetResponse.ok || !classificationsResponse.ok) {
+      return h
+        .view('standards/standard-sets/details', {
+          pageTitle: 'Standard Set Details',
+          navigation: buildNavigation(request),
+          errors: {
+            message:
+              'Unable to fetch standard set details. Please try again later.'
+          }
+        })
+        .code(500)
+    }
+
+    const standardSet = await standardSetResponse.json()
+    const classifications = await classificationsResponse.json()
+
+    // Create a map of classification IDs to names for easier lookup
+    const classificationMap = classifications.reduce((acc, classification) => {
+      acc[classification._id] = classification.name
+      return acc
+    }, {})
+
+    // Map classification IDs to names for each standard
+    const standardsWithClassifications = standardSet.standards.map(
+      (standard) => ({
+        ...standard,
+        classificationNames: standard.classification_ids
+          .map((id) => classificationMap[id])
+          .filter(Boolean)
+      })
+    )
+
+    return h.view('standards/standard-sets/details', {
+      pageTitle: `${standardSet.name} - Standard Set Details`,
+      navigation: buildNavigation(request),
+      standardSet: {
+        ...standardSet,
+        standards: standardsWithClassifications
+      }
+    })
+  } catch (err) {
+    request.logger.error('Error fetching standard set details:', err)
+    return h
+      .view('standards/standard-sets/details', {
+        pageTitle: 'Standard Set Details',
+        navigation: buildNavigation(request),
+        errors: {
+          message:
+            'Unable to fetch standard set details. Please try again later.'
+        }
+      })
+      .code(500)
+  }
+}

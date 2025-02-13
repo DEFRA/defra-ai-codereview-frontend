@@ -7,7 +7,8 @@ import {
 import {
   getStandardSets,
   createStandardSet,
-  deleteStandardSet
+  deleteStandardSet,
+  getStandardSetDetails
 } from './standard-sets/controller.js'
 
 /**
@@ -86,6 +87,16 @@ export const standards = {
           options: {
             auth: false,
             description: 'Delete a standard set',
+            tags: ['api', 'standards']
+          }
+        },
+        {
+          method: 'GET',
+          path: '/standards/standard-sets/{id}',
+          handler: getStandardSetDetails,
+          options: {
+            auth: false,
+            description: 'View standard set details',
             tags: ['api', 'standards']
           }
         }
