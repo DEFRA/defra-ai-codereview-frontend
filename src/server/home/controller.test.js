@@ -35,6 +35,24 @@ describe('Home Controller', () => {
       expect(result).toEqual(expect.stringContaining('repository-url'))
       expect(result).toEqual(expect.stringContaining('Generate code review'))
     })
+
+    test('Should handle non-ok response when fetching standard sets', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 500
+      })
+
+      const { result, statusCode } = await server.inject({
+        method: 'GET',
+        url: '/'
+      })
+
+      expect(statusCode).toBe(statusCodes.ok)
+      expect(result).toEqual(expect.stringContaining('Generate Code Review'))
+      expect(result).toEqual(expect.stringContaining('repository-url'))
+      // Should still render the page with empty standard sets
+      expect(result).not.toEqual(expect.stringContaining('standard-sets'))
+    })
   })
 
   describe('POST /', () => {

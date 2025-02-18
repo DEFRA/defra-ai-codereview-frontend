@@ -4,15 +4,16 @@ kanban-plugin: board
 
 ---
 
-## To Do
+## Backlog
 
-- [ ] review the js cursor rules (large)
-- [ ] update playbook repos cursor rules when done
-- [ ] get status changes (progressive enhancement solution)
-- [ ] how are environment variables done in js projects?
+- [ ] Add tools feature - once we have endpoint from Andrew Rea
 - [ ] add e2e tests in playwright
 - [ ] future feature: add a download link
-- [ ] change the route after POST to show the list view rather than the report view
+- [ ] CDP-style Interface
+
+
+## To Do
+
 
 
 ## Doing
@@ -22,6 +23,13 @@ kanban-plugin: board
 ## Done
 
 **Complete**
+- [x] Update Docs in code checker tool
+- [x] update playbook repos cursor rules when done
+- [x] refactor
+- [x] improve tests and test coverage
+- [x] Bug - can't select 1 standard, need to select multiple
+- [x] review the js cursor rules (large)
+- [x] [[standards-ingest-prd]]
 - [x] API changes
 	Table ordering - latest first
 	
@@ -32,12 +40,13 @@ kanban-plugin: board
 - [x] fixing the api to be async
 - [x] Add the code review output!
 - [x] clean up layout and change the title. maybe copy CDP style?
+- [x] get status changes (progressive enhancement solution)
 
 
 
 
 %% kanban:settings
 ```
-{"kanban-plugin":"board","list-collapse":[false,false,false]}
+{"kanban-plugin":"board","list-collapse":[false,false,false,false]}
 ```
 %%

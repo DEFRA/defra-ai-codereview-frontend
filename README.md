@@ -6,8 +6,11 @@
 
 A web application for submitting code repositories for AI-powered code review. This frontend service provides an interface for submitting repositories and reviewing the generated code analysis reports.
 
+## Contents
+
 - [Requirements](#requirements)
   - [Node.js](#nodejs)
+- [Data Models](#data-models)
 - [Server-side Caching](#server-side-caching)
 - [Redis](#redis)
 - [Local Development](#local-development)
@@ -39,6 +42,43 @@ To use the correct version of Node.js for this application, via nvm:
 ```bash
 cd defra-ai-codereview-frontend
 nvm use
+```
+
+## Data Models
+
+The application uses the following core data models:
+
+### Repository Review
+
+```javascript
+{
+  id: string,              // Unique identifier
+  repositoryUrl: string,   // Git repository URL
+  branch: string,          // Git branch name
+  status: string,          // Review status (pending/in-progress/completed)
+  createdAt: Date,         // Creation timestamp
+  updatedAt: Date,         // Last update timestamp
+  results: {               // Review results
+    suggestions: Array,    // Code improvement suggestions
+    issues: Array,         // Identified issues
+    metrics: Object        // Code quality metrics
+  }
+}
+```
+
+### Review Comment
+
+```javascript
+{
+  id: string,              // Unique identifier
+  reviewId: string,        // Reference to Repository Review
+  filePath: string,        // Path to the file
+  lineNumber: number,      // Line number in file
+  content: string,         // Comment content
+  type: string,            // Comment type (suggestion/issue)
+  severity: string,        // Severity level
+  createdAt: Date         // Creation timestamp
+}
 ```
 
 ## Server-side Caching

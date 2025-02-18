@@ -1,4 +1,8 @@
-import { getCodeReviews, getCodeReviewById } from './controller.js'
+import {
+  getCodeReviews,
+  getCodeReviewById,
+  getCodeReviewStatus
+} from './controller.js'
 import { config } from '~/src/config/config.js'
 
 describe('Code Reviews Controller', () => {
@@ -50,16 +54,34 @@ describe('Code Reviews Controller', () => {
       )
       expect(mockH.view).toHaveBeenCalledWith('code-reviews/index', {
         pageTitle: 'Code Reviews',
-        codeReviews: expect.arrayContaining([
-          expect.objectContaining({
-            _id: mockReviews[0]._id,
-            repository_url: mockReviews[0].repository_url,
-            status: mockReviews[0].status,
-            created_at: '14 January 2024 at 12:00pm',
-            updated_at: '14 January 2024 at 1:00pm',
-            detailUrl: `/code-reviews/${mockReviews[0]._id}`
-          })
-        ])
+        tableRows: [
+          [
+            {
+              html: `<a href="/code-reviews/${mockReview._id}" class="govuk-link" aria-label="View details for code review of ${mockReview.repository_url}">${mockReview.repository_url}</a>`,
+              attributes: {
+                'data-label': 'Code Repository'
+              }
+            },
+            {
+              html: `<time datetime="${mockReview.created_at}">14 January 2024 at 12:00pm</time>`,
+              attributes: {
+                'data-label': 'Created'
+              }
+            },
+            {
+              html: `<time datetime="${mockReview.updated_at}">14 January 2024 at 1:00pm</time>`,
+              attributes: {
+                'data-label': 'Updated'
+              }
+            },
+            {
+              html: `<strong class="govuk-tag govuk-tag--green" role="status" data-review-id="${mockReview._id}" aria-label="Review status: Completed">Completed</strong>`,
+              attributes: {
+                'data-label': 'Status'
+              }
+            }
+          ]
+        ]
       })
     })
 
@@ -201,6 +223,103 @@ describe('Code Reviews Controller', () => {
           'Try again later. If the problem persists, please contact support.',
         statusCode: 500
       })
+    })
+
+    it('should format markdown in compliance reports', async () => {
+      const reviewWithReports = {
+        ...mockReview,
+        compliance_reports: [
+          {
+            id: '1',
+            report: '# Test Report\n- Item 1\n- Item 2'
+          }
+        ]
+      }
+
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(reviewWithReports)
+      })
+
+      await getCodeReviewById(mockRequest, mockH)
+
+      expect(mockH.view).toHaveBeenCalledWith('code-reviews/detail', {
+        pageTitle: 'Code Review Details',
+        review: expect.objectContaining({
+          compliance_reports: [
+            expect.objectContaining({
+              id: '1',
+              report: expect.stringContaining('<h1>Test Report</h1>')
+            })
+          ]
+        })
+      })
+    })
+  })
+
+  describe('getCodeReviewStatus', () => {
+    it('should return review status successfully', async () => {
+      const mockResponse = {
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(mockReview)
+      }
+
+      fetchSpy.mockResolvedValueOnce(mockResponse)
+
+      const mockStatusH = {
+        response: jest.fn().mockReturnThis(),
+        code: jest.fn().mockReturnThis()
+      }
+
+      await getCodeReviewStatus(mockRequest, mockStatusH)
+
+      expect(fetchSpy).toHaveBeenCalledWith(
+        `${config.get('apiBaseUrl')}/api/v1/code-reviews/${mockRequest.params.id}`
+      )
+      expect(mockStatusH.response).toHaveBeenCalledWith({
+        id: mockReview._id,
+        status: mockReview.status
+      })
+    })
+
+    it('should handle non-ok response', async () => {
+      const mockResponse = {
+        ok: false,
+        status: 404
+      }
+
+      fetchSpy.mockResolvedValueOnce(mockResponse)
+
+      const mockStatusH = {
+        response: jest.fn().mockReturnThis(),
+        code: jest.fn().mockReturnThis()
+      }
+
+      await getCodeReviewStatus(mockRequest, mockStatusH)
+
+      expect(mockStatusH.response).toHaveBeenCalledWith({
+        error: 'Failed to fetch review status'
+      })
+      expect(mockStatusH.code).toHaveBeenCalledWith(404)
+    })
+
+    it('should handle API errors', async () => {
+      fetchSpy.mockRejectedValueOnce(new Error('API Error'))
+
+      const mockStatusH = {
+        response: jest.fn().mockReturnThis(),
+        code: jest.fn().mockReturnThis()
+      }
+
+      await getCodeReviewStatus(mockRequest, mockStatusH)
+
+      expect(mockRequest.logger.error).toHaveBeenCalled()
+      expect(mockStatusH.response).toHaveBeenCalledWith({
+        error: 'Internal server error'
+      })
+      expect(mockStatusH.code).toHaveBeenCalledWith(500)
     })
   })
 

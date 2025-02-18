@@ -1,0 +1,1 @@
+read the `@standards-ingest-prd.md` file and understand the whole of the context. We want to impliment sections 6.1, 6.2 and 6.3 for the frontend changes only. Do not impliment any other parts of the requirements. Think step by step can come up with a detailed plan before implementing. Consider the whole of the codebase before making any changes.

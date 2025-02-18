@@ -31,11 +31,16 @@
     "server:debug": "nodemon --exec tsx --enable-source-maps --inspect ./src",
     "prestart": "npm run build",
     "start": "NODE_ENV=production node --use-strict .",
-    "setup:husky": "node -e \"try { (await import('husky')).default() } catch (e) { if (e.code !== 'ERR_MODULE_NOT_FOUND') throw e }\" --input-type module"
+    "setup:husky": "node -e \"try { (await import('husky')).default() } catch (e) { if (e.code !== 'ERR_MODULE_NOT_FOUND') throw e }\" --input-type module",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report"
   },
   "author": "Defra DDTS",
   "license": "OGL-UK-3.0",
   "dependencies": {
+    "@axe-core/playwright": "^4.10.1",
     "@babel/runtime": "^7.26.0",
     "@defra/hapi-tracing": "^1.0.0",
     "@elastic/ecs-pino-format": "^1.5.0",
@@ -68,6 +73,7 @@
     "@babel/cli": "^7.25.9",
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
+    "@playwright/test": "^1.50.1",
     "@types/convict": "^6.1.6",
     "@types/hapi__catbox-memory": "^4.1.8",
     "@types/jest": "^29.5.14",
@@ -111,7 +117,7 @@
     "stylelint-config-gds": "^2.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3",
+    "typescript": "^5.5.3",
     "webpack": "^5.96.1",
     "webpack-assets-manifest": "^5.2.1",
     "webpack-cli": "^5.1.4"

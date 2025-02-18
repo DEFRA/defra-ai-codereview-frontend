@@ -16,12 +16,31 @@ function isValidUrl(url) {
 /**
  * Handler for GET requests to home page
  */
-export function getHome(_request, h) {
+export async function getHome(_request, h) {
+  let standardSets = []
+  try {
+    const response = await fetch(
+      `${config.get('apiBaseUrl')}/api/v1/standard-sets`
+    )
+
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status}`)
+    }
+
+    standardSets = await response.json()
+  } catch (err) {
+    _request.logger.error('Error fetching standard sets:', err)
+  }
+
   return h.view('home/index', {
     pageTitle: 'Home',
     heading: 'Generate Code Review',
-    values: {},
-    errors: null
+    values: {
+      repositoryUrl: '',
+      standardSets: []
+    },
+    errors: null,
+    standardSets
   })
 }
 
@@ -29,14 +48,21 @@ export function getHome(_request, h) {
  * Handler for POST requests to create a code review
  */
 export async function postHome(request, h) {
-  const { repository_url: repositoryUrl } = request.payload
+  const { repository_url: repositoryUrl, standard_sets: rawStandardSets } =
+    request.payload
+  // Ensure standard_sets is always an array
+  const standardSets = Array.isArray(rawStandardSets)
+    ? rawStandardSets
+    : rawStandardSets
+      ? [rawStandardSets]
+      : []
 
   // Validate input
   if (!repositoryUrl) {
     return h.view('home/index', {
       pageTitle: 'Home',
       heading: 'Generate Code Review',
-      values: { repositoryUrl },
+      values: { repositoryUrl, standardSets },
       errors: {
         repositoryUrl: {
           text: 'Enter a repository URL'
@@ -55,7 +81,7 @@ export async function postHome(request, h) {
     return h.view('home/index', {
       pageTitle: 'Home',
       heading: 'Generate Code Review',
-      values: { repositoryUrl },
+      values: { repositoryUrl, standardSets },
       errors: {
         repositoryUrl: {
           text: 'Enter a valid URL'
@@ -78,7 +104,10 @@ export async function postHome(request, h) {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ repository_url: repositoryUrl })
+        body: JSON.stringify({
+          repository_url: repositoryUrl,
+          standard_sets: standardSets
+        })
       }
     )
 
@@ -93,7 +122,7 @@ export async function postHome(request, h) {
     return h.view('home/index', {
       pageTitle: 'Home',
       heading: 'Generate Code Review',
-      values: { repositoryUrl },
+      values: { repositoryUrl, standardSets },
       errors: {
         repositoryUrl: {
           text: 'Error creating code review. Please try again.'

@@ -21,6 +21,11 @@ describe('#buildNavigation', () => {
         isActive: false,
         text: 'View code reviews',
         url: '/code-reviews'
+      },
+      {
+        isActive: false,
+        text: 'Standards',
+        url: '/standards'
       }
     ])
   })
@@ -36,6 +41,11 @@ describe('#buildNavigation', () => {
         isActive: false,
         text: 'View code reviews',
         url: '/code-reviews'
+      },
+      {
+        isActive: false,
+        text: 'Standards',
+        url: '/standards'
       }
     ])
   })
@@ -51,6 +61,11 @@ describe('#buildNavigation', () => {
         isActive: true,
         text: 'View code reviews',
         url: '/code-reviews'
+      },
+      {
+        isActive: false,
+        text: 'Standards',
+        url: '/standards'
       }
     ])
   })
@@ -68,6 +83,31 @@ describe('#buildNavigation', () => {
         isActive: true,
         text: 'View code reviews',
         url: '/code-reviews'
+      },
+      {
+        isActive: false,
+        text: 'Standards',
+        url: '/standards'
+      }
+    ])
+  })
+
+  test('Should highlight standards page in navigation', () => {
+    expect(buildNavigation(mockRequest({ path: '/standards' }))).toEqual([
+      {
+        isActive: false,
+        text: 'Generate code review',
+        url: '/'
+      },
+      {
+        isActive: false,
+        text: 'View code reviews',
+        url: '/code-reviews'
+      },
+      {
+        isActive: true,
+        text: 'Standards',
+        url: '/standards'
       }
     ])
   })

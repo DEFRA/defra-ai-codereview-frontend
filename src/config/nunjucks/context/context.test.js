@@ -45,6 +45,11 @@ describe('#context', () => {
             isActive: false,
             text: 'View code reviews',
             url: '/code-reviews'
+          },
+          {
+            isActive: false,
+            text: 'Standards',
+            url: '/standards'
           }
         ],
         serviceName: 'defra-ai-codereview-frontend',
@@ -134,6 +139,11 @@ describe('#context cache', () => {
             isActive: false,
             text: 'View code reviews',
             url: '/code-reviews'
+          },
+          {
+            isActive: false,
+            text: 'Standards',
+            url: '/standards'
           }
         ],
         serviceName: 'defra-ai-codereview-frontend',

@@ -6,7 +6,10 @@ module.exports = {
     '.server',
     '.public',
     'coverage',
-    'src/client/javascripts/code-review-status.test.js'
+    'src/client/javascripts/code-review-status.test.js',
+    'playwright-report',
+    'test-results',
+    'tests/**/*.js'
   ],
   overrides: [
     {

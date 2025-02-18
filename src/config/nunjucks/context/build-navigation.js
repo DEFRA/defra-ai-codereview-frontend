@@ -12,6 +12,11 @@ export function buildNavigation(request) {
       text: 'View code reviews',
       url: '/code-reviews',
       isActive: request?.path?.startsWith('/code-reviews')
+    },
+    {
+      text: 'Standards',
+      url: '/standards',
+      isActive: request?.path?.startsWith('/standards')
     }
   ]
 }

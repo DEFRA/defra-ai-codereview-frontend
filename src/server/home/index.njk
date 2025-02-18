@@ -4,69 +4,85 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+{% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
+
+{% block pageTitle %}Generate Code Review - Intelligent Code Reviewer{% endblock %}
+
+{% block beforeContent %}
+  {{ govukBreadcrumbs({
+    items: [
+      {
+        text: "Home",
+        href: "/"
+      }
+    ]
+  }) }}
+{% endblock %}
 
 {% block content %}
-  {{ appHeading({
-    text: heading,
-    caption: "Submit a git repository for code review"
-  }) }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h1 class="govuk-heading-l">
+        Generate Code Review
+      </h1>
 
-  {% if errors %}
-    {{ govukErrorSummary({
-      titleText: "There is a problem",
-      errorList: errors.items
-    }) }}
-  {% endif %}
+      <p class="govuk-body">Submit a git repository for code review</p>
 
-  <form method="post" action="/" novalidate>
-    {{ govukInput({
-      label: {
-        text: "Repository URL",
-        classes: "govuk-label--m"
-      },
-      id: "repository-url",
-      name: "repository_url",
-      type: "url",
-      autocomplete: "url",
-      spellcheck: false,
-      classes: "govuk-!-width-two-thirds",
-      errorMessage: errors.repositoryUrl,
-      value: values.repositoryUrl
-    }) }}
+      {% if errors %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: errors.items
+        }) }}
+      {% endif %}
 
-    {{ govukCheckboxes({
-      name: "standards",
-      fieldset: {
-        legend: {
-          text: "Standards",
-          classes: "govuk-fieldset__legend--m"
-        }
-      },
-      items: [
-        {
-          value: "defra",
-          text: "Defra software development standards",
-          checked: true,
-          hint: {
-            html: 'View the <a class="govuk-link" href="https://github.com/DEFRA/software-development-standards" target="_blank" rel="noopener noreferrer">Defra software development standards (opens in new tab)</a>'
-          }
-        },
-        {
-          value: "standard2",
-          text: "Another standard",
-          disabled: true
-        },
-        {
-          value: "standard3", 
-          text: "Another standard",
-          disabled: true
-        }
-      ]
-    }) }}
+      <form method="post" action="/" novalidate>
+        <div class="govuk-form-group govuk-!-margin-bottom-6">
+          {{ govukInput({
+            label: {
+              text: "Repository URL",
+              classes: "govuk-label--m"
+            },
+            id: "repository-url",
+            name: "repository_url",
+            type: "url",
+            autocomplete: "url",
+            spellcheck: false,
+            classes: "govuk-!-width-two-thirds",
+            errorMessage: (errors.repositoryUrl if errors else null) if errors else null,
+            value: (values.repositoryUrl if values else '') if values else ''
+          }) }}
+        </div>
 
-    {{ govukButton({
-      text: "Generate code review"
-    }) }}
-  </form>
+        <div class="govuk-form-group govuk-!-margin-bottom-6">
+          {% set standardSetItems = [] %}
+          {% for set in standardSets | default([]) %}
+            {% set standardSetItems = standardSetItems.concat([{
+              value: set._id,
+              text: set.name,
+              checked: false,
+              hint: {
+                html: 'View the <a class="govuk-link" href="' + set.repository_url + '" target="_blank" rel="noopener noreferrer">' + set.name + ' (opens in new tab)</a>'
+              }
+            }]) %}
+          {% endfor %}
 
+          {{ govukCheckboxes({
+            name: "standard_sets",
+            fieldset: {
+              legend: {
+                text: "Standards",
+                classes: "govuk-fieldset__legend--m"
+              }
+            },
+            items: standardSetItems
+          }) }}
+        </div>
+
+        {{ govukButton({
+          text: "Generate code review",
+          classes: "govuk-button--primary"
+        }) }}
+      </form>
+    </div>
+  </div>
 {% endblock %}
